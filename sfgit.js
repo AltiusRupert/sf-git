@@ -159,11 +159,14 @@ module.exports = {
                 }
                 }).stream();
                 stream.on('end', function() {
-                   return callback(null);
+                    if(!MUTE) console.log('SF RETRIEVE ZIP - end');
+                    return callback(null);
                 });
                 stream.on('error', function(err){
+                    if(!MUTE) console.log('SF RETRIEVE ZIP - error');
                     return callback((err)?createReturnObject(err, 'SF Retrieving metadata ZIP file failed'):null);
                 });
+                if(!MUTE) console.log('SF RETRIEVE ZIP - next is pipe');
                 stream.pipe(fs.createWriteStream(status.tempPath+status.zipPath+status.zipFile));
             },
             //Clones original repo

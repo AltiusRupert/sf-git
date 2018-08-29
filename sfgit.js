@@ -202,13 +202,17 @@ module.exports = {
                     if(err){
                         return callback(createReturnObject(err, 'README.md file creation failed'));
                     }
+                    if(!MUTE) console.log('UNZIP FILE - ok1');
+                    
                     fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/.gitignore', gitIgnoreBody, function(err) {
                         if(err){
                             return callback(createReturnObject(err, '.gitignore file creation failed'));
                         }
+                        if(!MUTE) console.log('UNZIP FILE - ok2');
                         try{
                             var zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
                             zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
+                            if(!MUTE) console.log('UNZIP FILE - ok3');
                             return callback(null);
                         }catch(ex){
                             return callback(createReturnObject(ex, 'Unzip failed'));

@@ -65,10 +65,7 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
-        if(!MUTE) console.log('### DATABASE_URL = ', DATABASE_URL);
-        const client = new Client({
-            connectionString: process.env.DATABASE_URL,
-        });
+        if(!MUTE) console.log('### DATABASE_URL = ', process.env.DATABASE_URL);
         pg.connect(process.env.DATABASE_URL, function(err, client, done) {
             client.query('SELECT * FROM SFOrgInfo__c', function(err, result) {
                 done();

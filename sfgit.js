@@ -53,6 +53,7 @@ module.exports = {
         // Environment information
         var myenv = {
              SF_METADATA_POLL_TIMEOUT    : process.env.SF_METADATA_POLL_TIMEOUT
+            ,SF_LOGIN_URL                : process.env.SF_LOGIN_URL | "login.salesforce.com"
             ,SF_USERNAME                 : process.env.SF_USERNAME
             ,SF_PASSWORD                 : process.env.SF_PASSWORD
             ,SF_API_VERSION              : process.env.SF_API_VERSION
@@ -66,8 +67,8 @@ module.exports = {
             
             ,DATABASE_URL                : "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
         };
-        if(!MUTE) console.log('### myenv = ', myenv);
         
+        /*
         // Database OrgInfo
         let pool = new pg.Pool({
             connectionString: myenv.DATABASE_URL,
@@ -82,10 +83,12 @@ module.exports = {
         pool.query(query)
             .then((result)  => { console.log('### DB query result : ', result.rows);})
             .catch(err      => { console.log('### DB query error : ',  err);        })
-                
+        */
+        
         
         //status object
         var status = {
+            hcPool          : (new pg.Pool({ connectionString: myenv.DATABASE_URL, ssl: true })), // Heroku Connect db for sfOrgInfo
             tempPath        : '/tmp/',
             zipPath         : "zips/",
             repoPath        : "repos/",
@@ -115,10 +118,41 @@ module.exports = {
 
         //asyncs jobs called sequentially (all the tasks to be done)
         async.series({
+            // connect to Heroku Connect SFOrgInfo DB
+            hcPoolConnect : function(callback) {
+                pool.connect()
+                    .catch(err      => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
+                    .then((result)  => { return callback(null);  })
+            },
+
+            // connect to Heroku Connect SFOrgInfo DB
+            hcQuerySfOrgInfo : function(callback) {
+                status.hcPool.query('SELECT * FROM salesforce.SFOrgInfo__c')
+                    .catch(err      => { return callback(createReturnObject(err, 'Failed to query SF OrgInfo HC database'));   })
+                    .then((result)  => {
+                        var res = result.rows[0];
+                    
+                        myenv.SF_METADATA_POLL_TIMEOUT  = res.sf_metadata_poll_timeout__c;
+                        myenv.SF_LOGIN_URL              = res.sf_login_url__c;
+                        myenv.SF_USERNAME               = res.sf_username__c;
+                        myenv.SF_PASSWORD               = res.sf_password__c;
+                        myenv.SF_API_VERSION            = res.sf_api_version__c;
+                        myenv.EXCLUDE_METADATA          = res.exclude_metadata__c;
+                        myenv.GIT_IGNORE                = res.git_ignore__c;
+                        myenv.REPO_URL                  = res.repo_url__c;
+                        myenv.REPO_USER_NAME            = res.repo_user_name__c;
+                        myenv.REPO_USER_EMAIL           = res.repo_user_email__c;
+                        //myenv.REPO_COMMIT_MESSAGE
+                        myenv.REPO_README               = res.repo_readme__c;
+
+                        console.log('### From HC : myenv : ', myenv);
+                        return callback(null);
+                    })
+            },
+
             //login to SF
             sfLogin : function(callback){
                 if(!MUTE) console.log('SF LOGIN');
-//                status.sfConnection.login(process.env.SF_USERNAME, process.env.SF_PASSWORD, function(err, lgnResult) {
                 status.sfConnection.login(myenv.SF_USERNAME, myenv.SF_PASSWORD, function(err, lgnResult) {
                     status.sfLoginResult = lgnResult;
                     return callback((err)?createReturnObject(err, 'SF Login failed'):null);
@@ -127,7 +161,6 @@ module.exports = {
             //Describes metadata items
             sfDescribeMetadata : function(callback){
                 if(!MUTE) console.log('SF DESCRIBE METADATA');
-//                status.sfConnection.metadata.describe(process.env.SF_API_VERSION+'.0', function(err, describe){
                 status.sfConnection.metadata.describe(myenv.SF_API_VERSION+'.0', function(err, describe){
                     status.sfDescribe = describe;
                     return callback((err)?createReturnObject(err, 'SF Describe failed'):null);
@@ -137,7 +170,6 @@ module.exports = {
             sfListMetadata : function(callback){
                 if(!MUTE) console.log('SF LIST DESCRIBE METADATA ALL');
                 var iterations =  parseInt(Math.ceil(status.sfDescribe.metadataObjects.length/3.0));
-//                var excludeMetadata = process.env.EXCLUDE_METADATA || '';
                 var excludeMetadata = myenv.EXCLUDE_METADATA || '';
                 var excludeMetadataList = excludeMetadata.toLowerCase().split(',');
 
@@ -146,7 +178,6 @@ module.exports = {
                 function listMetadataBatch(qr){
                     return function(cback){
                         if(!MUTE) console.log('SF LIST DESCRIBE METADATA: '+JSON.stringify(qr));
-//                        status.sfConnection.metadata.list(qr,process.env.SF_API_VERSION+'.0', function(err, fileProperties){
                         status.sfConnection.metadata.list(qr,myenv.SF_API_VERSION+'.0', function(err, fileProperties){
                             if(!err && fileProperties){
                                 for(var ft = 0; ft < fileProperties.length; ft++){
@@ -199,7 +230,6 @@ module.exports = {
                 var stream = status.sfConnection.metadata.retrieve({ 
                 unpackaged: {
                   types: _types,
-//                  version: process.env.SF_API_VERSION,
                   version: myenv.SF_API_VERSION,
                 }
                 }).stream();
@@ -214,12 +244,12 @@ module.exports = {
                 if(!MUTE) console.log('SF RETRIEVE ZIP - next is pipe');
                 stream.pipe(fs.createWriteStream(status.tempPath+status.zipPath+status.zipFile));
             },
+            
             //Clones original repo
             gitClone : function(callback){
                 if(!MUTE) console.log('GIT CLONE');
                 var folderPath = status.tempPath+status.repoPath+status.zipFile;
                 
-//                git.clone(process.env.REPO_URL, folderPath, 
                 git.clone(myenv.REPO_URL, folderPath, 
                 function(err, _repo){
                     status.gitRepo = _repo;
@@ -228,6 +258,7 @@ module.exports = {
                     return callback((err)?createReturnObject(err, 'Git clone failed'):null);
                 });
             },
+            
             //Unzip metadata zip file
             unzipFile : function(callback){
 
@@ -237,8 +268,6 @@ module.exports = {
                 var fs = require('fs');
 
                 var gitIgnoreBody = '#ignore files';
-//                if(process.env.GIT_IGNORE){
-//                    var spl = process.env.GIT_IGNORE.split(',');
                 if(myenv.GIT_IGNORE){
                     var spl = myenv.GIT_IGNORE.split(',');
                     for(var i in spl){
@@ -248,7 +277,6 @@ module.exports = {
                     }
                 }
 
-//                var readmeBody = process.env.REPO_README || "";
                 var readmeBody = myenv.REPO_README || "";
                 fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/README.md', readmeBody, function(err) {
                     if(err){
@@ -281,12 +309,9 @@ module.exports = {
             //Git commit
             gitCommit : function(callback){
                 if(!MUTE) console.log('GIT COMMIT');
-//                var userName = process.env.REPO_USER_NAME || "Heroku SFGit";
-//                var userEmail = process.env.REPO_USER_EMAIL || "sfgit@heroku.com";
                 var userName = myenv.REPO_USER_NAME || "Heroku SFGit";
                 var userEmail = myenv.REPO_USER_EMAIL || "sfgit@heroku.com";
                 status.gitRepo.identify({"name":userName, "email":userEmail}, function(err, oth){
-//                    var commitMessage = process.env.REPO_COMMIT_MESSAGE || 'Automatic commit (sfgit)';
                     var commitMessage = myenv.REPO_COMMIT_MESSAGE || 'Automatic commit (sfgit)';
                     status.gitRepo.commit(commitMessage, function(err, oth){
                         if(err){
@@ -296,6 +321,7 @@ module.exports = {
                     });
                 });
             },
+            
             //Git push
             gitPush : function(callback){
                 if(!MUTE) console.log('GIT PUSH');
@@ -308,6 +334,7 @@ module.exports = {
                 });
             },
         },
+                     
         function(err, results){
             //deletes all temp files
             deleteFolderRecursive(status.tempPath+status.zipPath+'/');

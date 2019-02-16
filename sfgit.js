@@ -65,24 +65,29 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
+        if(!MUTE) console.log('### myenv = ', process.env.DATABASE_URL);
         var pool = new pg.Client(process.env.DATABASE_URL);
+        if(!MUTE) console.log('### DB pool : ' + pool);
         pool.connect(function(err, client, done) {
             if (err) {
                 console.log('### cannot connect to the DB : ' + err);
             } else  {
                 client.query('SELECT * FROM SFOrgInfo__c', function(err, result) {
-                    done();
                     if(err) {
                         console.error('### database error : ', err);
                     } else {
                         console.log('### database rows : ', result.rows);
                     }
+                    done();
                 });
+                if(!MUTE) console.log('### DB query : done');
             }
         });
         pool.end();
         
         return;
+
+        
         
         //status object
         var status = {

@@ -6,7 +6,7 @@ var jsforce = require('jsforce');
 var async   = require('async');
 var AdmZip  = require('adm-zip');
 
-var pg = require('pg'); 
+import { Pool, Client } from 'pg'
 
 
 //mutes all logs
@@ -69,10 +69,19 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
-        var pool = new pg.Pool(myenv.DATABASE_URL+'?ssl=true');
-        pool.query('select * from salesforce.sforginfo__c')
-            .then((result)  => { console.log('### DB result : ', result.rows);  })
-            .catch(err      => { console.log('### DB error : ',  err);          })
+        let pool = new Pool({
+            connectionString: myenv.DATABASE_URL,
+            ssl: true
+        })
+
+        pool.connect()
+            .then((result)  => { console.log('### DB connected'                    })
+            .catch(err      => { console.log('### DB connection error : ',  err);  })
+        
+        var query = 'select * from salesforce.sforginfo__c';
+        pool.query(query)
+            .then((result)  => { console.log('### DB query result : ', result.rows);})
+            .catch(err      => { console.log('### DB query error : ',  err);       })
                 
         
         //status object

@@ -70,8 +70,8 @@ module.exports = {
         
         // Database OrgInfo
         pool.query('select * from salesforce.sforginfo__c')
-          .then((res) => console.log('### DB data : ', res.rows)) // brianc
-          .catch(err  => console.error('('### DB err : ', err.stack));
+          .then((res) => console.log('### DB data : ', res.rows))
+          .catch(err  => console.error('### DB err : ', err.stack));
 
         console.log('### fin ###');                        
         return;

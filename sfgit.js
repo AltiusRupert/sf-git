@@ -98,13 +98,13 @@ module.exports = {
         */
                 
         //status object
+        var DATABASE_URL = "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
         console.log('Working on org of selected username : ', status.selectedUsername);
         status = {
             selectedUsername : username      // Which SF org username do we want to work with ?
-            ,DATABASE_URL        : "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
             ,REPO_COMMIT_MESSAGE : process.env.REPO_COMMIT_MESSAGE
 
-            ,hcPool          : null
+            ,hcPool          : (new pg.Pool({ connectionString: DATABASE_URL, ssl: true }))     // Heroku Connect db for sfOrgInfo
             ,tempPath        : '/tmp/'
             ,zipPath         : "zips/"
             ,repoPath        : "repos/"

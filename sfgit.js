@@ -113,9 +113,6 @@ module.exports = {
             ,sfLoginResult   : null
             ,types           : {}
         };        
-        //polling timeout of the SF connection
-        status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
-        status.hcPool = new pg.Pool({ connectionString: myenv.DATABASE_URL, ssl: true });     // Heroku Connect db for sfOrgInfo
 
         //creates all the main folders (temp folder, zip folder and git clone folder)
         try{
@@ -169,6 +166,8 @@ module.exports = {
                         //myenv.REPO_COMMIT_MESSAGE
 
                         allenv[status.selectedUsername] = myenv;
+                        //polling timeout of the SF connection
+                        status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
 
                         console.log('### From HC : allenv : ', allenv);
                         return callback(null);

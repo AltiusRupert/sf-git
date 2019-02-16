@@ -120,7 +120,7 @@ module.exports = {
         async.series({
             // connect to Heroku Connect SFOrgInfo DB
             hcPoolConnect : function(callback) {
-                pool.connect()
+                status.hcPool.connect()
                     .catch(err      => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
                     .then((result)  => { return callback(null);  })
             },

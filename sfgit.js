@@ -69,15 +69,11 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
-        pool.connect();
-        console.log('### ici ###');
-        pool.query('select * from salesforce.sforginfo__c').then(response => {
-            if(!MUTE) console.log('### DB data : ', response.rows);
-        }).catch(err => {
-            if(!MUTE) console.log('### DB err : ', err);
-        });
-        pool.end();
-                        
+        pool.query('select * from salesforce.sforginfo__c')
+          .then((res) => console.log('### DB data : ', res.rows)) // brianc
+          .catch(err  => console.error('('### DB err : ', err.stack));
+
+        console.log('### fin ###');                        
         return;
 
         

@@ -74,8 +74,6 @@ module.exports = {
           .then((res) => console.log('### DB data : ', res.rows))
           .catch(err  => console.error('### DB err : ', err.stack));
 
-        console.log('### fin ###');                        
-        return;
 
         
         

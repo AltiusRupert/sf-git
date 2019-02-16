@@ -45,7 +45,7 @@ function updateWorkInfo(pool, status, message, callback){
 function now() {
     var d = new Date();
     var offset = (new Date().getTimezoneOffset() / 60) * -1;
-    return new Date(d.getTime() + offset);
+    return new Date(d.getTime() + offset).toISOString();
 }
    
 

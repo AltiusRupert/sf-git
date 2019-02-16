@@ -28,7 +28,6 @@ function createReturnObject(err, msg){
  * Update Heroku Connect database : work status, message, last commit date
  */
 function updateWorkInfo(pool, status, message){
-    var now = 
     var query = ['UPDATE salesforce.sforginfo__c'];
     query.push('SET');
 

@@ -46,10 +46,7 @@ var deleteFolderRecursive = function(path, exclude, doNotDeleteRoot) {
 
 
 module.exports = {
-    doAll : function(mainCallback){
-        var username = process.argv[2];
-        if(!MUTE) console.log('### username = ', username);
-        
+    doAll : function(mainCallback){        
         // Environment information
         var myenv = {
              SF_METADATA_POLL_TIMEOUT    : process.env.SF_METADATA_POLL_TIMEOUT
@@ -71,15 +68,18 @@ module.exports = {
                 
         //status object
         var status = {
-            hcPool          : (new pg.Pool({ connectionString: myenv.DATABASE_URL, ssl: true })), // Heroku Connect db for sfOrgInfo
-            tempPath        : '/tmp/',
-            zipPath         : "zips/",
-            repoPath        : "repos/",
-            zipFile         : "_MyPackage"+Math.random()+".zip",
-            sfConnection    : (new jsforce.Connection()),
-            sfLoginResult   : null,
-            types           : {},
+            ,selectedUsername: process.argv[2]      // Which SF org username do we want to work with ?
+
+            ,hcPool          : (new pg.Pool({ connectionString: myenv.DATABASE_URL, ssl: true }))     // Heroku Connect db for sfOrgInfo
+            ,tempPath        : '/tmp/'
+            ,zipPath         : "zips/"
+            ,repoPath        : "repos/"
+            ,zipFile         : "_MyPackage"+Math.random()+".zip"
+            ,sfConnection    : (new jsforce.Connection())
+            ,sfLoginResult   : null
+            ,types           : {}
         };
+        console.log('Working on org of selected username : ', status.selectedUsername);
         
         //polling timeout of the SF connection
         status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
@@ -110,8 +110,10 @@ module.exports = {
 
             // connect to Heroku Connect SFOrgInfo DB
             hcQuerySfOrgInfo : function(callback) {
-                status.hcPool.query('SELECT * FROM salesforce.SFOrgInfo__c')
-                    .catch(err      => { return callback(createReturnObject(err, 'Failed to query SF OrgInfo HC database'));   })
+                var query = "SELECT * FROM salesforce.SFOrgInfo__c WHERE sf_username__c='"+ status.selectedUsername +"'";
+                
+                status.hcPool.query(query)
+                    .catch(err      => { return callback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
                     .then((result)  => {
                         var res = result.rows[0];
                     
@@ -129,7 +131,7 @@ module.exports = {
 
                         //myenv.REPO_COMMIT_MESSAGE
 
-                        console.log('### From HC : myenv : ', myenv);
+                        //console.log('### From HC : myenv : ', myenv);
                         return callback(null);
                     })
             },

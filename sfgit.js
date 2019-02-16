@@ -365,7 +365,7 @@ module.exports = {
             var details = (err && err.error && err.error.details) || null;
             if(err){
                 details = err.details + (details==null ? '' : ' '+details);
-                console.log("Error occurred : ", err, err.error.message, details;
+                console.log("Error occurred : ", err.error.message, details);
                 updateWorkInfo(status.hcPool, err.error.message,details);
             } else {
                 console.log('Success');

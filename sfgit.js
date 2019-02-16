@@ -9,8 +9,6 @@ var AdmZip  = require('adm-zip');
 if(!MUTE) console.log('### DATABASE_URL = ', process.env.DATABASE_URL);
 var pg = require('pg'); 
 var pool = new pg.Pool(process.env.DATABASE_URL);
-pool.connect();
-console.log('### ici ###');
 
 
 //mutes all logs
@@ -71,11 +69,14 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
+        pool.connect();
+        console.log('### ici ###');
         pool.query('select * from salesforce.sforginfo__c').then(response => {
             if(!MUTE) console.log('### DB data : ', response.rows);
         }).catch(err => {
             if(!MUTE) console.log('### DB err : ', err);
-        })        
+        });
+        pool.end();
                         
         return;
 

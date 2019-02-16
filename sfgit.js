@@ -87,13 +87,13 @@ module.exports = {
         
         //status object
         var status = {
-            tempPath : '/tmp/',
-            zipPath : "zips/",
-            repoPath: "repos/",
-            zipFile : "_MyPackage"+Math.random()+".zip",
-            sfConnection : (new jsforce.Connection()),
-            sfLoginResult : null,
-            types : {},
+            tempPath        : '/tmp/',
+            zipPath         : "zips/",
+            repoPath        : "repos/",
+            zipFile         : "_MyPackage"+Math.random()+".zip",
+            sfConnection    : (new jsforce.Connection()),
+            sfLoginResult   : null,
+            types           : {},
         };
         //polling timeout of the SF connection
         //status.sfConnection.metadata.pollTimeout = process.env.SF_METADATA_POLL_TIMEOUT || 120000;

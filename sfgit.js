@@ -168,7 +168,7 @@ module.exports = {
                     
                         allenv[status.selectedUsername] = myenv;
 
-                        //console.log('### From HC : myenv : ', myenv);
+                        console.log('### From HC : allenv : ', allenv);
                         return callback(null);
                     })
             },
@@ -195,6 +195,7 @@ module.exports = {
         
         
         myenv = allenv[status.selectedUsername];
+        console.log('### OK !!! myenv : ', myenv);
 
         //asyncs jobs called sequentially (all the tasks to be done)
         async.series({

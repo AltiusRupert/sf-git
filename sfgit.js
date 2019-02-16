@@ -68,7 +68,7 @@ module.exports = {
                 
         //status object
         var status = {
-            ,selectedUsername: process.argv[2]      // Which SF org username do we want to work with ?
+            selectedUsername : process.argv[2]      // Which SF org username do we want to work with ?
 
             ,hcPool          : (new pg.Pool({ connectionString: myenv.DATABASE_URL, ssl: true }))     // Heroku Connect db for sfOrgInfo
             ,tempPath        : '/tmp/'

@@ -65,9 +65,8 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
-        if(!MUTE) console.log('### DATABASE_URL = ', process.env.DATABASE_URL);
-        var pool = new pg.Pool();
-        pool.connect(process.env.DATABASE_URL, function(err, client, done) {
+        var pool = new pg.Client(process.env.DATABASE_URL);
+        pool.connect(function(err, client, done) {
             if (err) {
                 console.log('### cannot connect to the DB : ' + err);
             } else  {

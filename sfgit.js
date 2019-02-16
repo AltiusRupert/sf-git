@@ -76,6 +76,9 @@ var deleteFolderRecursive = function(path, exclude, doNotDeleteRoot) {
 module.exports = {
     doAll : function(mainCallback){        
         // Environment information
+        var allenv = [];
+        var myenv = {};
+        /*
         var myenv = {
              SF_METADATA_POLL_TIMEOUT    : process.env.SF_METADATA_POLL_TIMEOUT
             ,SF_LOGIN_URL                : process.env.SF_LOGIN_URL | "login.salesforce.com"
@@ -90,13 +93,14 @@ module.exports = {
             ,REPO_README                 : process.env.REPO_README
 
             ,REPO_COMMIT_MESSAGE         : process.env.REPO_COMMIT_MESSAGE
-            
-            ,DATABASE_URL                : "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
         };
+        */
                 
         //status object
         status = {
             selectedUsername : username      // Which SF org username do we want to work with ?
+            ,DATABASE_URL        : "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
+            ,REPO_COMMIT_MESSAGE : process.env.REPO_COMMIT_MESSAGE
 
             ,hcPool          : (new pg.Pool({ connectionString: myenv.DATABASE_URL, ssl: true }))     // Heroku Connect db for sfOrgInfo
             ,tempPath        : '/tmp/'
@@ -127,7 +131,10 @@ module.exports = {
             return mainCallback && mainCallback(ex);
         }
 
-        //asyncs jobs called sequentially (all the tasks to be done)
+        
+        ///////////////////////////////////////////////////////////////////
+        // Connection à la base HC Salesforce, et lecture des orgs à gérer
+        //
         async.series({
             // connect to Heroku Connect SFOrgInfo DB
             hcPoolConnect : function(callback) {
@@ -144,7 +151,8 @@ module.exports = {
                     .catch(err      => { return callback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
                     .then((result)  => {
                         var res = result.rows[0];
-                    
+                        
+                        myenv = {}
                         myenv.SF_METADATA_POLL_TIMEOUT  = res.sf_metadata_poll_timeout__c;
                         myenv.SF_LOGIN_URL              = res.sf_login_url__c;
                         myenv.SF_USERNAME               = res.sf_username__c;
@@ -156,14 +164,40 @@ module.exports = {
                         myenv.REPO_USER_NAME            = res.repo_user_name__c;
                         myenv.REPO_USER_EMAIL           = res.repo_user_email__c;
                         myenv.REPO_README               = res.repo_readme__c;
-
                         //myenv.REPO_COMMIT_MESSAGE
+                    
+                        allenv[status.selectedUsername] = myenv;
 
                         //console.log('### From HC : myenv : ', myenv);
                         return callback(null);
                     })
             },
 
+        },
+                     
+        function(err, results){
+            var details = (err && err.error && err.error.details) || null;
+            if(err){
+                details = err.details + (details==null ? '' : ' '+details);
+                console.log("Error occurred : ", err.error.message, details);
+                updateWorkInfo(status.hcPool, err.error.message,details);
+            } else {
+                console.log('Success');
+                details = 'Success';
+                updateWorkInfo(status.hcPool, 'Success', '');
+            }
+            return mainCallback && mainCallback(err, details);
+        })            
+        
+        
+        //////////////////////////////////////////////////////////////////
+        // Boucle pour traiter chaque org Salesforce à gérer
+        
+        
+        myenv = allenv[status.selectedUsername];
+
+        //asyncs jobs called sequentially (all the tasks to be done)
+        async.series({
             //login to SF
             sfLogin : function(callback){
                 if(!MUTE) console.log('SF LOGIN');
@@ -327,7 +361,7 @@ module.exports = {
                 var userName = myenv.REPO_USER_NAME || "Heroku SFGit";
                 var userEmail = myenv.REPO_USER_EMAIL || "sfgit@heroku.com";
                 status.gitRepo.identify({"name":userName, "email":userEmail}, function(err, oth){
-                    var commitMessage = myenv.REPO_COMMIT_MESSAGE || 'Automatic commit (sfgit)';
+                    var commitMessage = status.REPO_COMMIT_MESSAGE || 'Automatic commit (sfgit)';
                     status.gitRepo.commit(commitMessage, function(err, oth){
                         if(err){
                             err.details = oth;

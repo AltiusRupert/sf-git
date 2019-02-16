@@ -31,14 +31,15 @@ function updateWorkInfo(pool, status, message){
     var query = ['UPDATE salesforce.sforginfo__c'];
     query.push('SET');
 
-    query.push(' Work_LastCommitDate__c     = '+Date.now());
+    query.push(' Work_LastCommitDate__c     = '+Date.now().toISOString());
     query.push(',Work_LastCommitMessage__c  = '+message);
     query.push(',Work_LastCommitStatus__c   = '+status);
     
-    query.push('WHERE sf_username = ' + username);
+    query.push('WHERE sf_username__c = ' + username);
 
     console.log('### update HC : query = '+query.join(' '));
-    pool.query(query.join(' '));
+    pool.query(query.join(' '))
+        .catch(err      => { return callback(createReturnObject(err, 'Failed to update SF OrgInfo HC database : query = '+query));  });
 }
 
 

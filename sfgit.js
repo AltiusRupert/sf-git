@@ -174,7 +174,7 @@ module.exports = {
 
         
         const promiseChaining = (req, res, next) => {
-            hcPoolConnect(mainCallback).
+            hcPoolConnect(mainCallback)
             .then(res => {
                 return hcPoolQuery(mainCallback);
             })

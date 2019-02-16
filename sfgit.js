@@ -134,6 +134,7 @@ module.exports = {
         async.series({
             // connect to Heroku Connect SFOrgInfo DB
             hcPoolConnect : function(callback){
+                if(!MUTE) console.log('HC CONNECT');
                 status.hcPool.connect()
                     .catch(err => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
                     .then((result) => {
@@ -144,8 +145,8 @@ module.exports = {
 
             // connect to Heroku Connect SFOrgInfo DB
             hcPoolConnect : function(callback) {
+                if(!MUTE) console.log('HC QUERY');
                 var query = "SELECT * FROM salesforce.SFOrgInfo__c WHERE sf_username__c='"+ status.selectedUsername +"'";
-                console.log('query = ', query);
                 status.hcPool.query(query)
                     .catch(err      => { return callback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
                     .then((result)  => {
@@ -169,7 +170,7 @@ module.exports = {
                         //polling timeout of the SF connection
                         status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
 
-                        console.log('### From HC : allenv : ', allenv);
+                        //console.log('### From HC : allenv : ', allenv);
                         return callback(null);
                     });      
             },
@@ -177,6 +178,7 @@ module.exports = {
             //login to SF
             sfLogin : function(callback){
                 if(!MUTE) console.log('SF LOGIN');
+                myenv = allenv[status.selectedUsername];
                 status.sfConnection.login(myenv.SF_USERNAME, myenv.SF_PASSWORD, function(err, lgnResult) {
                     status.sfLoginResult = lgnResult;
                     return callback((err)?createReturnObject(err, 'SF Login failed ('+myenv.SF_LOGIN_URL+', '+myenv.SF_USERNAME+', '+myenv.SF_PASSWORD+')'):null);
@@ -185,6 +187,7 @@ module.exports = {
             //Describes metadata items
             sfDescribeMetadata : function(callback){
                 if(!MUTE) console.log('SF DESCRIBE METADATA');
+                myenv = allenv[status.selectedUsername];
                 status.sfConnection.metadata.describe(myenv.SF_API_VERSION+'.0', function(err, describe){
                     status.sfDescribe = describe;
                     return callback((err)?createReturnObject(err, 'SF Describe failed'):null);
@@ -193,6 +196,7 @@ module.exports = {
             //Lists of all metadata details
             sfListMetadata : function(callback){
                 if(!MUTE) console.log('SF LIST DESCRIBE METADATA ALL');
+                myenv = allenv[status.selectedUsername];
                 var iterations =  parseInt(Math.ceil(status.sfDescribe.metadataObjects.length/3.0));
                 var excludeMetadata = myenv.EXCLUDE_METADATA || '';
                 var excludeMetadataList = excludeMetadata.toLowerCase().split(',');
@@ -244,6 +248,7 @@ module.exports = {
                 //should use describe
                 //retrieve xml
                 if(!MUTE) console.log('SF RETRIEVE ZIP');
+                myenv = allenv[status.selectedUsername];
                 
                 var _types = [];
                 for(var t in status.types){
@@ -273,6 +278,7 @@ module.exports = {
             //Clones original repo
             gitClone : function(callback){
                 if(!MUTE) console.log('GIT CLONE');
+                myenv = allenv[status.selectedUsername];
                 var folderPath = status.tempPath+status.repoPath+status.zipFile;
                 
                 git.clone(myenv.REPO_URL, folderPath, 
@@ -286,8 +292,8 @@ module.exports = {
             
             //Unzip metadata zip file
             unzipFile : function(callback){
-
                 if(!MUTE) console.log('UNZIP FILE');
+                myenv = allenv[status.selectedUsername];
                 
                 //create .gitignore
                 var fs = require('fs');
@@ -326,6 +332,7 @@ module.exports = {
             //Git add new resources
             gitAdd : function(callback){
                 if(!MUTE) console.log('GIT ADD');
+                myenv = allenv[status.selectedUsername];
                 
                 status.gitRepo.add("-A",function(err){
                     return callback((err)?createReturnObject(err, 'git add failed'):null);
@@ -334,6 +341,7 @@ module.exports = {
             //Git commit
             gitCommit : function(callback){
                 if(!MUTE) console.log('GIT COMMIT');
+                myenv = allenv[status.selectedUsername];
                 var userName = myenv.REPO_USER_NAME || "Heroku SFGit";
                 var userEmail = myenv.REPO_USER_EMAIL || "sfgit@heroku.com";
                 status.gitRepo.identify({"name":userName, "email":userEmail}, function(err, oth){
@@ -350,6 +358,7 @@ module.exports = {
             //Git push
             gitPush : function(callback){
                 if(!MUTE) console.log('GIT PUSH');
+                myenv = allenv[status.selectedUsername];
                 
                 status.gitRepo.remote_push("origin", "master", function(err, oth){
                     if(err){

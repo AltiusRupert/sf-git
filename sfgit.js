@@ -6,7 +6,7 @@ var jsforce = require('jsforce');
 var async   = require('async');
 var AdmZip  = require('adm-zip');
 
-import { Pool, Client } from 'pg'
+var pg      = require('pg');
 
 
 //mutes all logs
@@ -69,7 +69,7 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
-        let pool = new Pool({
+        let pool = new pg.Pool({
             connectionString: myenv.DATABASE_URL,
             ssl: true
         })

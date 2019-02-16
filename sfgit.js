@@ -75,13 +75,13 @@ module.exports = {
         })
 
         pool.connect()
-            .then((result)  => { console.log('### DB connected'                    })
-            .catch(err      => { console.log('### DB connection error : ',  err);  })
+            .then((result)  => { console.log('### DB connected');                   })
+            .catch(err      => { console.log('### DB connection error : ',  err);   })
         
         var query = 'select * from salesforce.sforginfo__c';
         pool.query(query)
             .then((result)  => { console.log('### DB query result : ', result.rows);})
-            .catch(err      => { console.log('### DB query error : ',  err);       })
+            .catch(err      => { console.log('### DB query error : ',  err);        })
                 
         
         //status object

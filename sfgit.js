@@ -48,8 +48,6 @@ var now = function() {
     return new Date(d.getTime() + offset);
 };
    
-}
-
 
 /*
  * Sync Deletes a folder recursively

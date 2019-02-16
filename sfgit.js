@@ -28,10 +28,11 @@ function createReturnObject(err, msg){
  * Update Heroku Connect database : work status, message, last commit date
  */
 function updateWorkInfo(pool, status, message){
+    var now = 
     var query = ['UPDATE salesforce.sforginfo__c'];
     query.push('SET');
 
-    query.push(' Work_LastCommitDate__c     = '+(new Date().toISOString()));
+    query.push(' Work_LastCommitDate__c     = '+now;
     query.push(',Work_LastCommitMessage__c  = '+message);
     query.push(',Work_LastCommitStatus__c   = '+status);
     
@@ -40,6 +41,14 @@ function updateWorkInfo(pool, status, message){
     console.log('### update HC : query = '+query.join(' '));
     pool.query(query.join(' '))
         .catch(err      => { return callback(createReturnObject(err, 'Failed to update SF OrgInfo HC database : query = '+query));  });
+}
+
+var now = function() {
+    var d = new Date();
+    var offset = (new Date().getTimezoneOffset() / 60) * -1;
+    return new Date(d.getTime() + offset);
+};
+   
 }
 
 
@@ -349,18 +358,18 @@ module.exports = {
             deleteFolderRecursive(status.tempPath+status.repoPath+'/');
 
             if(err 
-                && err.error.details
-                && (err.error.details.indexOf("up-to-date")>=0 || err.error.details.indexOf("nothing to commit") >=0)){
-                console.log('Success', err.error.details);
-                updateWorkInfo(status.hcPool, 'Success', err.error.details);
-                return mainCallback && mainCallback(null, err.error.details);
+                && err.details
+                && (err.details.indexOf("up-to-date")>=0 || err.details.indexOf("nothing to commit") >=0)){
+                console.log('Success', err.details);
+                updateWorkInfo(status.hcPool, 'Success', err.details);
+                return mainCallback && mainCallback(null, err.details);
             }
 
-            var details = (err && err.error && err.error.details) || null;
+            var details = (err && err.details) || null;
             if(err){
-                console.log("Error occurred : ", err, err.error.status, details);
+                console.log("Error occurred : ", err, err.error.status, err.error.message, err.details);
                 updateWorkInfo(status.hcPool, err.error.status, details);
-            }else{
+            } else {
                 console.log('Success');
                 details = 'Success';
                 updateWorkInfo(status.hcPool, 'Success', '');

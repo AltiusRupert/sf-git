@@ -6,6 +6,7 @@ var jsforce = require('jsforce');
 var async   = require('async');
 var AdmZip  = require('adm-zip');
 
+if(!MUTE) console.log('### DATABASE_URL = ', process.env.DATABASE_URL);
 var pg = require('pg'); 
 var pool = new pg.Pool(process.env.DATABASE_URL);
 
@@ -67,30 +68,12 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
-        pool.query('SELECT * FROM SFOrgInfo__c;').then(response => {
-            if(!MUTE) console.log('### DB data : ', result.rows);
+        pool.query('SELECT * FROM SFOrgInfo__c').then(response => {
+            if(!MUTE) console.log('### DB data : ', response.rows);
         }).catch(err => {
             if(!MUTE) console.log('### DB err : ', err);
         })        
-        
-        /*
-        pool.connect(function(err, client, done) {
-            if (err) {
-                console.log('### cannot connect to the DB : ' + err);
-            } else  {
-                client.query('SELECT * FROM SFOrgInfo__c', function(err, result) {
-                    if(err) {
-                        console.error('### database error : ', err);
-                    } else {
-                        console.log('### database rows : ', result.rows);
-                    }
-                    done();
-                });
-                if(!MUTE) console.log('### DB query : done');
-            }
-        });
-        */
-                
+                        
         return;
 
         

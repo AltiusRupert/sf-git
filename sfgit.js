@@ -94,7 +94,7 @@ function hcPoolQuery (callback) {
         .then((result)  => 
             result.rows.forEach(function(row) {
 
-                myenv = {}
+                myenv = {};
                 myenv.SF_METADATA_POLL_TIMEOUT  = row.sf_metadata_poll_timeout__c;
                 myenv.SF_LOGIN_URL              = row.sf_login_url__c;
                 myenv.SF_USERNAME               = row.sf_username__c;

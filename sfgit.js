@@ -73,6 +73,49 @@ var deleteFolderRecursive = function(path, exclude, doNotDeleteRoot) {
 };
 
 
+// connect to Heroku Connect SFOrgInfo DB
+function hcPoolConnect (callback){
+    if(!MUTE) console.log('HC CONNECT');
+    status.hcPool.connect()
+        .catch(err => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
+        .then((result) => {
+            return;
+    });
+}
+
+// connect to Heroku Connect SFOrgInfo DB
+function hcPoolQuery (callback) {
+    if(!MUTE) console.log('HC QUERY');
+    var query = "SELECT * FROM salesforce.SFOrgInfo__c WHERE sf_username__c='"+ status.selectedUsername +"'";
+    status.hcPool.query(query)
+        .catch(err      => { return callback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
+        .then((result)  => {
+            var res = result.rows[0];
+
+            myenv = {}
+            myenv.SF_METADATA_POLL_TIMEOUT  = res.sf_metadata_poll_timeout__c;
+            myenv.SF_LOGIN_URL              = res.sf_login_url__c;
+            myenv.SF_USERNAME               = res.sf_username__c;
+            myenv.SF_PASSWORD               = res.sf_password__c;
+            myenv.SF_API_VERSION            = res.sf_api_version__c;
+            myenv.EXCLUDE_METADATA          = res.exclude_metadata__c;
+            myenv.GIT_IGNORE                = res.git_ignore__c;
+            myenv.REPO_URL                  = res.repo_url__c;
+            myenv.REPO_USER_NAME            = res.repo_user_name__c;
+            myenv.REPO_USER_EMAIL           = res.repo_user_email__c;
+            myenv.REPO_README               = res.repo_readme__c;
+            //myenv.REPO_COMMIT_MESSAGE
+
+            allenv[status.selectedUsername] = myenv;
+            //polling timeout of the SF connection
+            status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
+
+            //console.log('### From HC : allenv : ', allenv);
+            return;
+        });      
+}
+
+                
 module.exports = {
     doAll : function(mainCallback){        
         // Environment information
@@ -130,270 +173,239 @@ module.exports = {
         }
 
         
-        //asyncs jobs called sequentially (all the tasks to be done)
-        async.series({
-            // connect to Heroku Connect SFOrgInfo DB
-            hcPoolConnect : function(callback){
-                if(!MUTE) console.log('HC CONNECT');
-                status.hcPool.connect()
-                    .catch(err => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
-                    .then((result) => {
-                        return callback(null);
-                });
-            },
+        hcPoolConnect(mainCallback).
+        .then(res => {
+            return hcPoolQuery(mainCallback);
+        })
+        .then(res => {
 
-            // connect to Heroku Connect SFOrgInfo DB
-            hcPoolQuery : function(callback) {
-                if(!MUTE) console.log('HC QUERY');
-                var query = "SELECT * FROM salesforce.SFOrgInfo__c WHERE sf_username__c='"+ status.selectedUsername +"'";
-                status.hcPool.query(query)
-                    .catch(err      => { return callback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
-                    .then((result)  => {
-                        var res = result.rows[0];
+        
+            //asyncs jobs called sequentially (all the tasks to be done)
+            async.series({
+                //login to SF
+                sfLogin : function(callback){
+                    if(!MUTE) console.log('SF LOGIN');
+                    myenv = allenv[status.selectedUsername];
+                    status.sfConnection.login(myenv.SF_USERNAME, myenv.SF_PASSWORD, function(err, lgnResult) {
+                        status.sfLoginResult = lgnResult;
+                        return callback((err)?createReturnObject(err, 'SF Login failed ('+myenv.SF_LOGIN_URL+', '+myenv.SF_USERNAME+', '+myenv.SF_PASSWORD+')'):null);
+                    });
+                },
+                //Describes metadata items
+                sfDescribeMetadata : function(callback){
+                    if(!MUTE) console.log('SF DESCRIBE METADATA');
+                    myenv = allenv[status.selectedUsername];
+                    status.sfConnection.metadata.describe(myenv.SF_API_VERSION+'.0', function(err, describe){
+                        status.sfDescribe = describe;
+                        return callback((err)?createReturnObject(err, 'SF Describe failed'):null);
+                    });
+                },
+                //Lists of all metadata details
+                sfListMetadata : function(callback){
+                    if(!MUTE) console.log('SF LIST DESCRIBE METADATA ALL');
+                    myenv = allenv[status.selectedUsername];
+                    var iterations =  parseInt(Math.ceil(status.sfDescribe.metadataObjects.length/3.0));
+                    var excludeMetadata = myenv.EXCLUDE_METADATA || '';
+                    var excludeMetadataList = excludeMetadata.toLowerCase().split(',');
 
-                        myenv = {}
-                        myenv.SF_METADATA_POLL_TIMEOUT  = res.sf_metadata_poll_timeout__c;
-                        myenv.SF_LOGIN_URL              = res.sf_login_url__c;
-                        myenv.SF_USERNAME               = res.sf_username__c;
-                        myenv.SF_PASSWORD               = res.sf_password__c;
-                        myenv.SF_API_VERSION            = res.sf_api_version__c;
-                        myenv.EXCLUDE_METADATA          = res.exclude_metadata__c;
-                        myenv.GIT_IGNORE                = res.git_ignore__c;
-                        myenv.REPO_URL                  = res.repo_url__c;
-                        myenv.REPO_USER_NAME            = res.repo_user_name__c;
-                        myenv.REPO_USER_EMAIL           = res.repo_user_email__c;
-                        myenv.REPO_README               = res.repo_readme__c;
-                        //myenv.REPO_COMMIT_MESSAGE
+                    var asyncObj = {};
 
-                        allenv[status.selectedUsername] = myenv;
-                        //polling timeout of the SF connection
-                        status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
-
-                        //console.log('### From HC : allenv : ', allenv);
-                        return callback(null);
-                    });      
-            },
-
-            //login to SF
-            sfLogin : function(callback){
-                if(!MUTE) console.log('SF LOGIN');
-                myenv = allenv[status.selectedUsername];
-                status.sfConnection.login(myenv.SF_USERNAME, myenv.SF_PASSWORD, function(err, lgnResult) {
-                    status.sfLoginResult = lgnResult;
-                    return callback((err)?createReturnObject(err, 'SF Login failed ('+myenv.SF_LOGIN_URL+', '+myenv.SF_USERNAME+', '+myenv.SF_PASSWORD+')'):null);
-                });
-            },
-            //Describes metadata items
-            sfDescribeMetadata : function(callback){
-                if(!MUTE) console.log('SF DESCRIBE METADATA');
-                myenv = allenv[status.selectedUsername];
-                status.sfConnection.metadata.describe(myenv.SF_API_VERSION+'.0', function(err, describe){
-                    status.sfDescribe = describe;
-                    return callback((err)?createReturnObject(err, 'SF Describe failed'):null);
-                });
-            },
-            //Lists of all metadata details
-            sfListMetadata : function(callback){
-                if(!MUTE) console.log('SF LIST DESCRIBE METADATA ALL');
-                myenv = allenv[status.selectedUsername];
-                var iterations =  parseInt(Math.ceil(status.sfDescribe.metadataObjects.length/3.0));
-                var excludeMetadata = myenv.EXCLUDE_METADATA || '';
-                var excludeMetadataList = excludeMetadata.toLowerCase().split(',');
-
-                var asyncObj = {};
-
-                function listMetadataBatch(qr){
-                    return function(cback){
-                        if(!MUTE) console.log('SF LIST DESCRIBE METADATA: '+JSON.stringify(qr));
-                        status.sfConnection.metadata.list(qr, myenv.SF_API_VERSION+'.0', function(err, fileProperties){
-                            if(!err && fileProperties){
-                                for(var ft = 0; ft < fileProperties.length; ft++){
-                                    if(!status.types[fileProperties[ft].type]){
-                                        status.types[fileProperties[ft].type] = [];
+                    function listMetadataBatch(qr){
+                        return function(cback){
+                            if(!MUTE) console.log('SF LIST DESCRIBE METADATA: '+JSON.stringify(qr));
+                            status.sfConnection.metadata.list(qr, myenv.SF_API_VERSION+'.0', function(err, fileProperties){
+                                if(!err && fileProperties){
+                                    for(var ft = 0; ft < fileProperties.length; ft++){
+                                        if(!status.types[fileProperties[ft].type]){
+                                            status.types[fileProperties[ft].type] = [];
+                                        }
+                                        status.types[fileProperties[ft].type].push(fileProperties[ft].fullName);
+                                        //console.log('# type = ', fileProperties[ft].type+' : '+fileProperties[ft].fullName);
                                     }
-                                    status.types[fileProperties[ft].type].push(fileProperties[ft].fullName);
-                                    //console.log('# type = ', fileProperties[ft].type+' : '+fileProperties[ft].fullName);
+                                }
+                                return cback(err);
+                            });
+                        }
+                    }
+
+                    for(var it = 0; it < iterations; it++){
+                        var query = [];
+                        for(var i = 0; i < 3; i++){
+                            var index = it*3+i;
+
+                            if(status.sfDescribe.metadataObjects.length > index){
+                                var metadata = status.sfDescribe.metadataObjects[index];
+                                if(excludeMetadataList.indexOf((metadata.xmlName||'').toLowerCase()) <0){
+                                    query.push({type: metadata.xmlName, folder: metadata.folderName});
                                 }
                             }
-                            return cback(err);
+                        }
+                        if(query.length>0){
+                            asyncObj['fn'+it] = listMetadataBatch(query);
+                        }
+                    }
+                    async.series(asyncObj, function(err, results){
+                        return callback((err)?createReturnObject(err, 'SF Describe list metadata failed'):null);
+                    });
+
+
+                },
+                //Retrieving ZIP file of metadata
+                sfRetrieveZip : function(callback){
+                    //should use describe
+                    //retrieve xml
+                    if(!MUTE) console.log('SF RETRIEVE ZIP');
+                    myenv = allenv[status.selectedUsername];
+
+                    var _types = [];
+                    for(var t in status.types){
+                        _types.push({
+                            members: status.types[t],
+                            name: t,
                         });
                     }
-                }
+                    var stream = status.sfConnection.metadata.retrieve({ 
+                        unpackaged: {
+                          types: _types,
+                          version: myenv.SF_API_VERSION,
+                        }
+                    }).stream();
+                    stream.on('end', function() {
+                        if(!MUTE) console.log('SF RETRIEVE ZIP - end');
+                        return callback(null);
+                    });
+                    stream.on('error', function(err){
+                        if(!MUTE) console.log('SF RETRIEVE ZIP - error');
+                        return callback((err)?createReturnObject(err, 'SF Retrieving metadata ZIP file failed'):null);
+                    });
+                    if(!MUTE) console.log('SF RETRIEVE ZIP - next is pipe');
+                    stream.pipe(fs.createWriteStream(status.tempPath+status.zipPath+status.zipFile));
+                    return callback(null);
+                },
 
-                for(var it = 0; it < iterations; it++){
-                    var query = [];
-                    for(var i = 0; i < 3; i++){
-                        var index = it*3+i;
-                        
-                        if(status.sfDescribe.metadataObjects.length > index){
-                            var metadata = status.sfDescribe.metadataObjects[index];
-                            if(excludeMetadataList.indexOf((metadata.xmlName||'').toLowerCase()) <0){
-                                query.push({type: metadata.xmlName, folder: metadata.folderName});
+                //Clones original repo
+                gitClone : function(callback){
+                    if(!MUTE) console.log('GIT CLONE');
+                    myenv = allenv[status.selectedUsername];
+                    var folderPath = status.tempPath+status.repoPath+status.zipFile;
+
+                    git.clone(myenv.REPO_URL, folderPath, function(err, _repo){
+                        status.gitRepo = _repo;
+                        //deletes all cloned files except the .git folder (the ZIP file will be the master)
+                        //deleteFolderRecursive(folderPath, '.git', true);
+                        return callback((err)?createReturnObject(err, 'Git clone failed'):null);
+                    });
+                },
+
+                //Unzip metadata zip file
+                unzipFile : function(callback){
+                    if(!MUTE) console.log('UNZIP FILE');
+                    myenv = allenv[status.selectedUsername];
+
+                    //create .gitignore
+                    var fs = require('fs');
+
+                    var gitIgnoreBody = '#ignore files';
+                    if(myenv.GIT_IGNORE){
+                        var spl = myenv.GIT_IGNORE.split(',');
+                        for(var i in spl){
+                            if(spl[i]){
+                                gitIgnoreBody+='\n'+spl[i];
                             }
                         }
                     }
-                    if(query.length>0){
-                        asyncObj['fn'+it] = listMetadataBatch(query);
-                    }
-                }
-                async.series(asyncObj, function(err, results){
-                    return callback((err)?createReturnObject(err, 'SF Describe list metadata failed'):null);
-                });
-                
-                
-            },
-            //Retrieving ZIP file of metadata
-            sfRetrieveZip : function(callback){
-                //should use describe
-                //retrieve xml
-                if(!MUTE) console.log('SF RETRIEVE ZIP');
-                myenv = allenv[status.selectedUsername];
-                
-                var _types = [];
-                for(var t in status.types){
-                    _types.push({
-                        members: status.types[t],
-                        name: t,
-                    });
-                }
-                var stream = status.sfConnection.metadata.retrieve({ 
-                    unpackaged: {
-                      types: _types,
-                      version: myenv.SF_API_VERSION,
-                    }
-                }).stream();
-                stream.on('end', function() {
-                    if(!MUTE) console.log('SF RETRIEVE ZIP - end');
-                    return callback(null);
-                });
-                stream.on('error', function(err){
-                    if(!MUTE) console.log('SF RETRIEVE ZIP - error');
-                    return callback((err)?createReturnObject(err, 'SF Retrieving metadata ZIP file failed'):null);
-                });
-                if(!MUTE) console.log('SF RETRIEVE ZIP - next is pipe');
-                stream.pipe(fs.createWriteStream(status.tempPath+status.zipPath+status.zipFile));
-                return callback(null);
-            },
-            
-            //Clones original repo
-            gitClone : function(callback){
-                if(!MUTE) console.log('GIT CLONE');
-                myenv = allenv[status.selectedUsername];
-                var folderPath = status.tempPath+status.repoPath+status.zipFile;
-                
-                git.clone(myenv.REPO_URL, folderPath, function(err, _repo){
-                    status.gitRepo = _repo;
-                    //deletes all cloned files except the .git folder (the ZIP file will be the master)
-                    //deleteFolderRecursive(folderPath, '.git', true);
-                    return callback((err)?createReturnObject(err, 'Git clone failed'):null);
-                });
-            },
-            
-            //Unzip metadata zip file
-            unzipFile : function(callback){
-                if(!MUTE) console.log('UNZIP FILE');
-                myenv = allenv[status.selectedUsername];
-                
-                //create .gitignore
-                var fs = require('fs');
 
-                var gitIgnoreBody = '#ignore files';
-                if(myenv.GIT_IGNORE){
-                    var spl = myenv.GIT_IGNORE.split(',');
-                    for(var i in spl){
-                        if(spl[i]){
-                            gitIgnoreBody+='\n'+spl[i];
-                        }
-                    }
-                }
-
-                var readmeBody = myenv.REPO_README || "";
-                fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/README.md', readmeBody, function(err) {
-                    if(err){
-                        return callback(createReturnObject(err, 'README.md file creation failed'));
-                    }
-                    fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/.gitignore', gitIgnoreBody, function(err) {
+                    var readmeBody = myenv.REPO_README || "";
+                    fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/README.md', readmeBody, function(err) {
                         if(err){
-                            return callback(createReturnObject(err, '.gitignore file creation failed'));
+                            return callback(createReturnObject(err, 'README.md file creation failed'));
                         }
-                        try{
-                            var zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
-                            zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
-                            return callback(null);
-                        }catch(ex){
-                            return callback(createReturnObject(ex, 'Unzip failed'));
-                        }
-                    }); 
-                });
-                // Jamais atteint
-            },
-            
-            //Git add new resources
-            gitAdd : function(callback){
-                if(!MUTE) console.log('GIT ADD');
-                myenv = allenv[status.selectedUsername];
-                
-                status.gitRepo.add("-A",function(err){
-                    return callback((err)?createReturnObject(err, 'git add failed'):null);
-                });
-            },
-            
-            //Git commit
-            gitCommit : function(callback){
-                if(!MUTE) console.log('GIT COMMIT');
-                myenv = allenv[status.selectedUsername];
-                var userName = myenv.REPO_USER_NAME || "Heroku SFGit";
-                var userEmail = myenv.REPO_USER_EMAIL || "sfgit@heroku.com";
-                status.gitRepo.identify({"name":userName, "email":userEmail}, function(err, oth){
-                    var commitMessage = status.REPO_COMMIT_MESSAGE || 'Automatic commit (sfgit)';
-                    status.gitRepo.commit(commitMessage, function(err, oth){
+                        fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/.gitignore', gitIgnoreBody, function(err) {
+                            if(err){
+                                return callback(createReturnObject(err, '.gitignore file creation failed'));
+                            }
+                            try{
+                                var zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
+                                zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
+                                return callback(null);
+                            }catch(ex){
+                                return callback(createReturnObject(ex, 'Unzip failed'));
+                            }
+                        }); 
+                    });
+                    // Jamais atteint
+                },
+
+                //Git add new resources
+                gitAdd : function(callback){
+                    if(!MUTE) console.log('GIT ADD');
+                    myenv = allenv[status.selectedUsername];
+
+                    status.gitRepo.add("-A",function(err){
+                        return callback((err)?createReturnObject(err, 'git add failed'):null);
+                    });
+                },
+
+                //Git commit
+                gitCommit : function(callback){
+                    if(!MUTE) console.log('GIT COMMIT');
+                    myenv = allenv[status.selectedUsername];
+                    var userName = myenv.REPO_USER_NAME || "Heroku SFGit";
+                    var userEmail = myenv.REPO_USER_EMAIL || "sfgit@heroku.com";
+                    status.gitRepo.identify({"name":userName, "email":userEmail}, function(err, oth){
+                        var commitMessage = status.REPO_COMMIT_MESSAGE || 'Automatic commit (sfgit)';
+                        status.gitRepo.commit(commitMessage, function(err, oth){
+                            if(err){
+                                err.details = oth;
+                            }
+                            return callback((err)?createReturnObject(err, 'git commit failed'):null);
+                        });
+                    });
+                },
+
+                //Git push
+                gitPush : function(callback){
+                    if(!MUTE) console.log('GIT PUSH');
+                    myenv = allenv[status.selectedUsername];
+
+                    status.gitRepo.remote_push("origin", "master", function(err, oth){
                         if(err){
                             err.details = oth;
                         }
-                        return callback((err)?createReturnObject(err, 'git commit failed'):null);
+                        return callback((err)?createReturnObject(err, 'git push failed'):null);
                     });
-                });
+                },
             },
-            
-            //Git push
-            gitPush : function(callback){
-                if(!MUTE) console.log('GIT PUSH');
-                myenv = allenv[status.selectedUsername];
-                
-                status.gitRepo.remote_push("origin", "master", function(err, oth){
-                    if(err){
-                        err.details = oth;
-                    }
-                    return callback((err)?createReturnObject(err, 'git push failed'):null);
-                });
-            },
-        },
-                     
-        function(err, results){
-            //deletes all temp files
-            deleteFolderRecursive(status.tempPath+status.zipPath+'/');
-            deleteFolderRecursive(status.tempPath+status.repoPath+'/');
 
-            if(err 
-                && err.error.details
-                && (err.error.details.indexOf("up-to-date")>=0 || err.error.details.indexOf("nothing to commit") >=0)){
-                console.log('Success', err.error.details);
-                updateWorkInfo(status.hcPool, 'Success', err.error.details);
-                return mainCallback && mainCallback(null, err.error.details);
-            }
+            function(err, results){
+                //deletes all temp files
+                deleteFolderRecursive(status.tempPath+status.zipPath+'/');
+                deleteFolderRecursive(status.tempPath+status.repoPath+'/');
 
-            var details = (err && err.error && err.error.details) || null;
-            if(err){
-                details = err.details + (details==null ? '' : ' '+details);
-                console.log("Error occurred : ", err.error.message, details);
-                updateWorkInfo(status.hcPool, err.error.message,details);
-            } else {
-                console.log('Success');
-                details = 'Success';
-                updateWorkInfo(status.hcPool, 'Success', '');
-            }
-            return mainCallback && mainCallback(err, details);
+                if(err 
+                    && err.error.details
+                    && (err.error.details.indexOf("up-to-date")>=0 || err.error.details.indexOf("nothing to commit") >=0)){
+                    console.log('Success', err.error.details);
+                    updateWorkInfo(status.hcPool, 'Success', err.error.details);
+                    return mainCallback && mainCallback(null, err.error.details);
+                }
+
+                var details = (err && err.error && err.error.details) || null;
+                if(err){
+                    details = err.details + (details==null ? '' : ' '+details);
+                    console.log("Error occurred : ", err.error.message, details);
+                    updateWorkInfo(status.hcPool, err.error.message,details);
+                } else {
+                    console.log('Success');
+                    details = 'Success';
+                    updateWorkInfo(status.hcPool, 'Success', '');
+                }
+                return mainCallback && mainCallback(err, details);
+            })
+        
+        
+        
+        
         })
-
     },
 }

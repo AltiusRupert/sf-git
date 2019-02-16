@@ -104,7 +104,7 @@ module.exports = {
             ,DATABASE_URL        : "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
             ,REPO_COMMIT_MESSAGE : process.env.REPO_COMMIT_MESSAGE
 
-            ,hcPool          : (new pg.Pool({ connectionString: myenv.DATABASE_URL, ssl: true }))     // Heroku Connect db for sfOrgInfo
+            ,hcPool          : null
             ,tempPath        : '/tmp/'
             ,zipPath         : "zips/"
             ,repoPath        : "repos/"
@@ -115,6 +115,7 @@ module.exports = {
         };        
         //polling timeout of the SF connection
         status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
+        status.hcPool = new pg.Pool({ connectionString: myenv.DATABASE_URL, ssl: true });     // Heroku Connect db for sfOrgInfo
 
         //creates all the main folders (temp folder, zip folder and git clone folder)
         try{

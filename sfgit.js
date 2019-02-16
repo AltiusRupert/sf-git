@@ -169,6 +169,7 @@ module.exports = {
                                         status.types[fileProperties[ft].type] = [];
                                     }
                                     status.types[fileProperties[ft].type].push(fileProperties[ft].fullName);
+                                    console.log('# type = ', fileProperties[ft].type);
                                 }
                             }
                             return cback(err);
@@ -189,9 +190,7 @@ module.exports = {
                         }
                     }
                     if(query.length>0){
-                        console.log('# query = ', query);
                         asyncObj['fn'+it] = listMetadataBatch(query);
-                        console.log('# asyncObj[fn'+it+'] = ', asyncObj['fn'+it]);
                     }
                 }
                 async.series(asyncObj, function(err, results){

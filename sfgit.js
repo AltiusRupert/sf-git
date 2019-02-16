@@ -6,9 +6,7 @@ var jsforce = require('jsforce');
 var async   = require('async');
 var AdmZip  = require('adm-zip');
 
-console.log('### DATABASE_URL = ', process.env.DATABASE_URL);
 var pg = require('pg'); 
-var pool = new pg.Pool(process.env.DATABASE_URL);
 
 
 //mutes all logs
@@ -64,11 +62,14 @@ module.exports = {
             REPO_USER_NAME              : process.env.REPO_USER_NAME,
             REPO_USER_EMAIL             : process.env.REPO_USER_EMAIL,
             REPO_COMMIT_MESSAGE         : process.env.REPO_COMMIT_MESSAGE,
-            REPO_README                 : process.env.REPO_README
+            REPO_README                 : process.env.REPO_README,
+            
+            DATABASE_URL                : process.env.DATABASE_URL
         };
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
+        var pool = new pg.Pool(myenv.DATABASE_URL);
         pool.query('select * from salesforce.sforginfo__c')
           .then((res) => console.log('### DB data : ', res.rows))
           .catch(err  => console.error('### DB err : ', err.stack));

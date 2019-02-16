@@ -1,13 +1,13 @@
 'use strict';
-var git = require('gift');
-var fs = require('fs');
+var git     = require('gift');
+var fs      = require('fs');
 var fstream = require('fstream');
 var jsforce = require('jsforce');
-var async = require('async');
-var AdmZip = require('adm-zip');
-var pg = require('pg');
+var async   = require('async');
+var AdmZip  = require('adm-zip');
+var pg      = require('pg');
 
-//muts all logs
+//mutes all logs
 var MUTE = false;
 
 /*
@@ -69,7 +69,7 @@ module.exports = {
         var pool = new pg.Pool();
         pool.connect(process.env.DATABASE_URL, function(err, client, done) {
             if (err) {
-                console.log("### Can not connect to the DB" + err);
+                console.log('### cannot connect to the DB : ' + err);
             } else  {
                 client.query('SELECT * FROM SFOrgInfo__c', function(err, result) {
                     done();

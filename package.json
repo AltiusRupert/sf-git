@@ -31,7 +31,8 @@
     "async":"2.0.0-rc.6",
     "fstream":"1.0.*",
     "adm-zip": "0.4.*",
-    "express" : "4.13.*"
+    "express" : "4.13.*",
+    "pg" : "*"
   },
   "devDependencies": {
     "foreman" : "*"

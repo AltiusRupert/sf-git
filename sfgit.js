@@ -5,7 +5,6 @@ var fstream = require('fstream');
 var jsforce = require('jsforce');
 var async   = require('async');
 var AdmZip  = require('adm-zip');
-var pg      = require('pg');
 
 //mutes all logs
 var MUTE = false;
@@ -65,19 +64,25 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
-        if(!MUTE) console.log('### DATABASE_URL = ', process.env.DATABASE_URL);
-        var pool = new pg.Client(process.env.DATABASE_URL);
-        
-        pool.connect(process.env.DATABASE_URL);
-        pool.query("SELECT * FROM SFOrgInfo__c", function(err, result) {
-            if(err) {
-                if(!MUTE) console.error('### database error : ', err);
-            } else {
-                if(!MUTE) console.log('### database rows : ', result.rows);
-            }
-        });
-        pool.end();
+        const { Client } = require('pg');
 
+        const client = new Client({
+          connectionString: process.env.DATABASE_URL,
+          ssl: true,
+        });
+
+        client.connect();
+
+        client.query('SELECT * FROM SFOrgInfo__c;', (err, res) => {
+          if (err) throw err;
+          for (let row of res.rows) {
+            console.log(JSON.stringify(row));
+          }
+          client.end();
+        });
+
+        
+        
         /*
         pool.connect(function(err, client, done) {
             if (err) {

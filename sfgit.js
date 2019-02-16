@@ -6,6 +6,9 @@ var jsforce = require('jsforce');
 var async = require('async');
 var AdmZip = require('adm-zip');
 
+const { Client } = require('pg');
+const { DATABASE_URL } = process.env;
+
 //muts all logs
 var MUTE = false;
 
@@ -65,12 +68,12 @@ module.exports = {
         
         // Database OrgInfo
         const client = new Client({
-            connectionString: process.env.DATABASE_URL,
+            connectionString: DATABASE_URL,
         });
         client.connect()
             .then(() => client.query('SELECT * FROM SFOrgInfo__c'))
             .then((result) => {
-                if(!MUTE) console.log('### database result = ', result);
+                if(!MUTE) console.log('### database result = ', result.rows);
                 client.end();
             })
             .catch(() => {

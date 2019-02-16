@@ -64,9 +64,9 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
-        const { Client } = require('pg');
+        const pg = require('pg');
 
-        const client = new Client({
+        const client = new pg({
           connectionString: process.env.DATABASE_URL,
           ssl: true,
         });

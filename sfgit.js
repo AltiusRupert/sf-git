@@ -31,7 +31,7 @@ function updateWorkInfo(pool, status, message){
     var query = ['UPDATE salesforce.sforginfo__c'];
     query.push('SET');
 
-    query.push(' Work_LastCommitDate__c     = '+Date.now().toISOString());
+    query.push(' Work_LastCommitDate__c     = '+(new Date().toISOString()));
     query.push(',Work_LastCommitMessage__c  = '+message);
     query.push(',Work_LastCommitStatus__c   = '+status);
     
@@ -358,7 +358,7 @@ module.exports = {
 
             var details = (err && err.error && err.error.details) || null;
             if(err){
-                console.log("Error occurred", err.error.status+' : '+details);
+                console.log("Error occurred : ", err, err.error.status, details);
                 updateWorkInfo(status.hcPool, err.error.status, details);
             }else{
                 console.log('Success');

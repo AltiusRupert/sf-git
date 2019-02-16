@@ -8,6 +8,8 @@ var AdmZip  = require('adm-zip');
 
 var pg      = require('pg');
 
+var username = process.argv[2];     // Which SF org username do we want to work with ?
+var status = {}
 
 //mutes all logs
 var MUTE = false;
@@ -21,6 +23,24 @@ function createReturnObject(err, msg){
         details: msg
     };
 }
+
+/*
+ * Update Heroku Connect database : work status, message, last commit date
+ */
+function updateWorkInfo(pool, status, message){
+    var query = ['UPDATE salesforce.sforginfo__c'];
+    query.push('SET');
+
+    query.push(' Work_LastCommitDate__c     = '+Date.now());
+    query.push(',Work_LastCommitMessage__c  = '+message);
+    query.push(',Work_LastCommitStatus__c   = '+status);
+    
+    query.push('WHERE sf_username = ' + username);
+
+    console.log('### update HC : query = '+query.join(' '));
+    pool.query(query.join(' '));
+}
+
 
 /*
  * Sync Deletes a folder recursively
@@ -67,8 +87,8 @@ module.exports = {
         };
                 
         //status object
-        var status = {
-            selectedUsername : process.argv[2]      // Which SF org username do we want to work with ?
+        status = {
+            selectedUsername : username      // Which SF org username do we want to work with ?
 
             ,hcPool          : (new pg.Pool({ connectionString: myenv.DATABASE_URL, ssl: true }))     // Heroku Connect db for sfOrgInfo
             ,tempPath        : '/tmp/'
@@ -331,15 +351,18 @@ module.exports = {
                 && err.error.details
                 && (err.error.details.indexOf("up-to-date")>=0 || err.error.details.indexOf("nothing to commit") >=0)){
                 console.log('Success', err.error.details);
+                updateWorkInfo(status.hcPool, 'Success', err.error.details);
                 return mainCallback && mainCallback(null, err.error.details);
             }
 
-            var details = (err && err.error && err.details) || null;
+            var details = (err && err.error && err.error.details) || null;
             if(err){
                 console.log("Error occurred",err);
+                updateWorkInfo(status.hcPool, err.error.status, details);
             }else{
                 console.log('Success');
                 details = 'Success';
+                updateWorkInfo(status.hcPool, 'Success', '');
             }
             return mainCallback && mainCallback(err, details);
         })

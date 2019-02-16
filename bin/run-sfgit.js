@@ -6,9 +6,9 @@
  * command
  */
 var sfgit = require('../sfgit');
-sfgit.doAll(function(err, msg){
+sfgit.doAll(function(err, details){
 	// Already traced in sfgit
-	//console.log(err, msg);
+	//console.log(err, details);
 	
-	console.log('END : msg = '+msg+', error = '+JSON.stringify(err.error));
+        //console.log("END : ", err ? err.error.message : '', details);
 });

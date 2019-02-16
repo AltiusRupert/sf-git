@@ -138,7 +138,6 @@ module.exports = {
                 status.hcPool.connect()
                     .catch(err => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
                     .then((result) => {
-                        console.log('Pool connect OK');
                         return callback(null);
                 });
             },
@@ -258,10 +257,10 @@ module.exports = {
                     });
                 }
                 var stream = status.sfConnection.metadata.retrieve({ 
-                unpackaged: {
-                  types: _types,
-                  version: myenv.SF_API_VERSION,
-                }
+                    unpackaged: {
+                      types: _types,
+                      version: myenv.SF_API_VERSION,
+                    }
                 }).stream();
                 stream.on('end', function() {
                     if(!MUTE) console.log('SF RETRIEVE ZIP - end');
@@ -273,6 +272,7 @@ module.exports = {
                 });
                 if(!MUTE) console.log('SF RETRIEVE ZIP - next is pipe');
                 stream.pipe(fs.createWriteStream(status.tempPath+status.zipPath+status.zipFile));
+                return callback(null);
             },
             
             //Clones original repo
@@ -326,9 +326,9 @@ module.exports = {
                         }
                     }); 
                 });
-                
-                
+                // Jamais atteint
             },
+            
             //Git add new resources
             gitAdd : function(callback){
                 if(!MUTE) console.log('GIT ADD');
@@ -338,6 +338,7 @@ module.exports = {
                     return callback((err)?createReturnObject(err, 'git add failed'):null);
                 });
             },
+            
             //Git commit
             gitCommit : function(callback){
                 if(!MUTE) console.log('GIT COMMIT');

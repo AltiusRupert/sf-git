@@ -68,7 +68,7 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
-        pool.query('SELECT * FROM SFOrgInfo__c').then(response => {
+        pool.query('select * from salesforce.sforginfo__c').then(response => {
             if(!MUTE) console.log('### DB data : ', response.rows);
         }).catch(err => {
             if(!MUTE) console.log('### DB err : ', err);

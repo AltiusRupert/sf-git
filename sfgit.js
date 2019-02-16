@@ -109,7 +109,7 @@ function hcPoolQuery (callback) {
                 //myenv.REPO_COMMIT_MESSAGE
 
                 allenv[row.sf_username__c] = myenv;
-            }
+            });
         
             console.log('### From HC : allenv : ', allenv);
             return;
@@ -391,7 +391,7 @@ module.exports = {
                         return mainCallback && mainCallback(err, details);
                     })
 
-                }
+                });
 
 
             })

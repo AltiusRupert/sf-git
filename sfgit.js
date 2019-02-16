@@ -78,6 +78,7 @@ module.exports = {
         // Environment information
         var allenv = [];
         var myenv = {};
+        
         /*
         var myenv = {
              SF_METADATA_POLL_TIMEOUT    : process.env.SF_METADATA_POLL_TIMEOUT
@@ -97,6 +98,7 @@ module.exports = {
         */
                 
         //status object
+        console.log('Working on org of selected username : ', status.selectedUsername);
         status = {
             selectedUsername : username      // Which SF org username do we want to work with ?
             ,DATABASE_URL        : "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
@@ -110,9 +112,7 @@ module.exports = {
             ,sfConnection    : (new jsforce.Connection())
             ,sfLoginResult   : null
             ,types           : {}
-        };
-        console.log('Working on org of selected username : ', status.selectedUsername);
-        
+        };        
         //polling timeout of the SF connection
         status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
 
@@ -139,9 +139,11 @@ module.exports = {
         // connect to Heroku Connect SFOrgInfo DB
         status.hcPool.connect()
             .catch(err      => { return mainCallback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
+        console.log('Pool connect OK');
 
         // connect to Heroku Connect SFOrgInfo DB
         var query = "SELECT * FROM salesforce.SFOrgInfo__c WHERE sf_username__c='"+ status.selectedUsername +"'";
+        console.log('query = ', query);
         status.hcPool.query(query)
             .catch(err      => { return mainCallback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
             .then((result)  => {
@@ -173,6 +175,7 @@ module.exports = {
         
         
         myenv = allenv[status.selectedUsername];
+        console.log('### OK !!! allenv : ', allenv);
         console.log('### OK !!! myenv : ', myenv);
 
         //asyncs jobs called sequentially (all the tasks to be done)

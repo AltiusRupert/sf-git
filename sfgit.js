@@ -70,11 +70,11 @@ module.exports = {
         
         // Database OrgInfo
         var pool = new pg.Pool(myenv.DATABASE_URL+'?ssl=true');
-        pool.query('select * from salesforce.sforginfo__c')
-          .then((res) => console.log('### DB data : ', res.rows))
-          .catch(err  => console.error('### DB err : ', err.stack));
+        var res = pool.query('select * from salesforce.sforginfo__c');
+        console.log('### res = ', res);
 
-
+        
+        return;
         
         
         //status object

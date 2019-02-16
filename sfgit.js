@@ -44,7 +44,10 @@ var deleteFolderRecursive = function(path, exclude, doNotDeleteRoot) {
 
 module.exports = {
     doAll : function(mainCallback){
-
+        var username = process.argv[2];
+        if(!MUTE) console.log('### username = ', username');
+        
+        
         //status object
         var status = {
             tempPath : '/tmp/',

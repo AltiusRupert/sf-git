@@ -64,12 +64,11 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
-        /*
         const client = new Client({
-            connectionString: myenv.DATABASE_URL,
+            connectionString: process.env.DATABASE_URL,
         });
         client.connect()
-            .then(() => client.query('SELECT * FROM hellotable'))
+            .then(() => client.query('SELECT * FROM SFOrgInfo__c'))
             .then((result) => {
                 if(!MUTE) console.log('### database result = ', result);
                 client.end();
@@ -78,7 +77,6 @@ module.exports = {
                 if(!MUTE) console.log('### database error');
                 client.end();
             });
-           */
         
         //status object
         var status = {

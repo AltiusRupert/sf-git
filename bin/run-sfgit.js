@@ -10,5 +10,5 @@ sfgit.doAll(function(err, msg){
 	// Already traced in sfgit
 	//console.log(err, msg);
 	
-	console.log('END : msg = '+msg+', err = '+JSON.stringify(err));
+	console.log('END : msg = '+msg+', error = '+JSON.stringify(err.error));
 });

@@ -47,7 +47,6 @@ module.exports = {
         var username = process.argv[2];
         if(!MUTE) console.log('### username = ', username);
         
-        
         // Environment information
         var myenv = {
             SF_METADATA_POLL_TIMEOUT    = process.env.SF_METADATA_POLL_TIMEOUT,
@@ -62,6 +61,7 @@ module.exports = {
             REPO_COMMIT_MESSAGE         = process.env.REPO_COMMIT_MESSAGE,
             REPO_README                 = process.env.REPO_README
         };
+        if(!MUTE) console.log('### myenv = ', myenv);
         
         //status object
         var status = {

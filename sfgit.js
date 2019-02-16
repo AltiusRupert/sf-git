@@ -64,7 +64,7 @@ module.exports = {
             REPO_COMMIT_MESSAGE         : process.env.REPO_COMMIT_MESSAGE,
             REPO_README                 : process.env.REPO_README,
             
-            DATABASE_URL                : process.env.DATABASE_URL
+            DATABASE_URL                : process.env.DB_URL
         };
         if(!MUTE) console.log('### myenv = ', myenv);
         

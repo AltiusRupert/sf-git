@@ -169,7 +169,7 @@ module.exports = {
                                         status.types[fileProperties[ft].type] = [];
                                     }
                                     status.types[fileProperties[ft].type].push(fileProperties[ft].fullName);
-                                    console.log('# type = ', fileProperties[ft].type);
+                                    console.log('# type = ', fileProperties[ft].type+' : '+fileProperties[ft].fullName);
                                 }
                             }
                             return cback(err);

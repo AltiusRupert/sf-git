@@ -32,7 +32,7 @@ function updateWorkInfo(pool, status, message, callback){
     
     query.push('SET');
     query.push(" Work_LastCommitDate__c     = '"+now()  +"'");
-    query.push(",Work_LastCommitMessage__c  = '"+message+"'");
+    //query.push(",Work_LastCommitMessage__c  = '"+message+"'");
     query.push(",Work_LastCommitStatus__c   = '"+status +"'");
 
     query.push("WHERE sf_username__c = '" +username+ "'");
@@ -281,11 +281,10 @@ module.exports = {
                 myenv = allenv[status.selectedUsername];
                 var folderPath = status.tempPath+status.repoPath+status.zipFile;
                 
-                git.clone(myenv.REPO_URL, folderPath, 
-                function(err, _repo){
+                git.clone(myenv.REPO_URL, folderPath, function(err, _repo){
                     status.gitRepo = _repo;
                     //deletes all cloned files except the .git folder (the ZIP file will be the master)
-                    deleteFolderRecursive(folderPath, '.git', true);
+                    //deleteFolderRecursive(folderPath, '.git', true);
                     return callback((err)?createReturnObject(err, 'Git clone failed'):null);
                 });
             },

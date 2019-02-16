@@ -131,7 +131,7 @@ module.exports = {
 
                         //myenv.REPO_COMMIT_MESSAGE
 
-                        //console.log('### From HC : myenv : ', myenv);
+                        console.log('### From HC : myenv : ', myenv);
                         return callback(null);
                     })
             },

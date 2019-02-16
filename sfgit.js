@@ -141,7 +141,7 @@ module.exports = {
                 if(!MUTE) console.log('SF LOGIN');
                 status.sfConnection.login(myenv.SF_USERNAME, myenv.SF_PASSWORD, function(err, lgnResult) {
                     status.sfLoginResult = lgnResult;
-                    return callback((err)?createReturnObject(err, 'SF Login failed'):null);
+                    return callback((err)?createReturnObject(err, 'SF Login failed ('+myenv.SF_LOGIN_URL+', '+myenv.SF_USERNAME+', '+myenv.SF_PASSWORD+')'):null);
                 });
             },
             //Describes metadata items

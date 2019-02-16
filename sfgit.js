@@ -144,7 +144,7 @@ module.exports = {
             },
 
             // connect to Heroku Connect SFOrgInfo DB
-            hcPoolConnect : function(callback) {
+            hcPoolQuery : function(callback) {
                 if(!MUTE) console.log('HC QUERY');
                 var query = "SELECT * FROM salesforce.SFOrgInfo__c WHERE sf_username__c='"+ status.selectedUsername +"'";
                 status.hcPool.query(query)

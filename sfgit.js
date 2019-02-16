@@ -62,30 +62,13 @@ module.exports = {
             ,REPO_URL                    : process.env.REPO_URL
             ,REPO_USER_NAME              : process.env.REPO_USER_NAME
             ,REPO_USER_EMAIL             : process.env.REPO_USER_EMAIL
-            ,REPO_COMMIT_MESSAGE         : process.env.REPO_COMMIT_MESSAGE
             ,REPO_README                 : process.env.REPO_README
+
+            ,REPO_COMMIT_MESSAGE         : process.env.REPO_COMMIT_MESSAGE
             
             ,DATABASE_URL                : "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
         };
-        
-        /*
-        // Database OrgInfo
-        let pool = new pg.Pool({
-            connectionString: myenv.DATABASE_URL,
-            ssl: true
-        })
-
-        pool.connect()
-            .then((result)  => { console.log('### DB connected');                   })
-            .catch(err      => { console.log('### DB connection error : ',  err);   })
-        
-        var query = 'select * from salesforce.sforginfo__c';
-        pool.query(query)
-            .then((result)  => { console.log('### DB query result : ', result.rows);})
-            .catch(err      => { console.log('### DB query error : ',  err);        })
-        */
-        
-        
+                
         //status object
         var status = {
             hcPool          : (new pg.Pool({ connectionString: myenv.DATABASE_URL, ssl: true })), // Heroku Connect db for sfOrgInfo
@@ -97,9 +80,9 @@ module.exports = {
             sfLoginResult   : null,
             types           : {},
         };
+        
         //polling timeout of the SF connection
-        //status.sfConnection.metadata.pollTimeout = process.env.SF_METADATA_POLL_TIMEOUT || 120000;
-        status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 120000;
+        status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
 
         //creates all the main folders (temp folder, zip folder and git clone folder)
         try{
@@ -142,8 +125,9 @@ module.exports = {
                         myenv.REPO_URL                  = res.repo_url__c;
                         myenv.REPO_USER_NAME            = res.repo_user_name__c;
                         myenv.REPO_USER_EMAIL           = res.repo_user_email__c;
-                        //myenv.REPO_COMMIT_MESSAGE
                         myenv.REPO_README               = res.repo_readme__c;
+
+                        //myenv.REPO_COMMIT_MESSAGE
 
                         console.log('### From HC : myenv : ', myenv);
                         return callback(null);
@@ -178,7 +162,7 @@ module.exports = {
                 function listMetadataBatch(qr){
                     return function(cback){
                         if(!MUTE) console.log('SF LIST DESCRIBE METADATA: '+JSON.stringify(qr));
-                        status.sfConnection.metadata.list(qr,myenv.SF_API_VERSION+'.0', function(err, fileProperties){
+                        status.sfConnection.metadata.list(qr, myenv.SF_API_VERSION+'.0', function(err, fileProperties){
                             if(!err && fileProperties){
                                 for(var ft = 0; ft < fileProperties.length; ft++){
                                     if(!status.types[fileProperties[ft].type]){
@@ -205,7 +189,9 @@ module.exports = {
                         }
                     }
                     if(query.length>0){
+                        console.log('# query = ', query);
                         asyncObj['fn'+it] = listMetadataBatch(query);
+                        console.log('# asyncObj[fn'+it+'] = ', asyncObj['fn'+it]);
                     }
                 }
                 async.series(asyncObj, function(err, results){

@@ -27,11 +27,11 @@ function createReturnObject(err, msg){
 /*
  * Update Heroku Connect database : work status, message, last commit date
  */
-function updateWorkInfo(pool, status, message){
+function updateWorkInfo(pool, status, message, callback){
     var query = ['UPDATE salesforce.sforginfo__c'];
     query.push('SET');
 
-    query.push(' Work_LastCommitDate__c     = '+now);
+    query.push(' Work_LastCommitDate__c     = '+now());
     query.push(',Work_LastCommitMessage__c  = '+message);
     query.push(',Work_LastCommitStatus__c   = '+status);
     
@@ -39,14 +39,14 @@ function updateWorkInfo(pool, status, message){
 
     console.log('### update HC : query = '+query.join(' '));
     pool.query(query.join(' '))
-        .catch(err      => { return callback(createReturnObject(err, 'Failed to update SF OrgInfo HC database : query = '+query));  });
+        .catch(err => { console.log('Failed to update SF OrgInfo HC database : query = '+query);  });
 }
 
-var now = function() {
+function now() {
     var d = new Date();
     var offset = (new Date().getTimezoneOffset() / 60) * -1;
     return new Date(d.getTime() + offset);
-};
+}
    
 
 /*
@@ -364,8 +364,9 @@ module.exports = {
 
             var details = (err && err.error && err.error.details) || null;
             if(err){
-                console.log("Error occurred : ", err, err.error.message, err.details+' '+details);
-                updateWorkInfo(status.hcPool, err.error.message, err.details+' '+details);
+                details = err.details + (details==null ? '' : ' '+details);
+                console.log("Error occurred : ", err, err.error.message, details;
+                updateWorkInfo(status.hcPool, err.error.message,details);
             } else {
                 console.log('Success');
                 details = 'Success';

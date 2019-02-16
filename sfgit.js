@@ -48,6 +48,21 @@ module.exports = {
         if(!MUTE) console.log('### username = ', username);
         
         
+        // Environment information
+        var myenv = {
+            SF_METADATA_POLL_TIMEOUT    = process.env.SF_METADATA_POLL_TIMEOUT,
+            SF_USERNAME                 = process.env.SF_USERNAME,
+            SF_PASSWORD                 = process.env.SF_PASSWORD,
+            SF_API_VERSION              = process.env.SF_API_VERSION,
+            EXCLUDE_METADATA            = process.env.EXCLUDE_METADATA,
+            GIT_IGNORE                  = process.env.GIT_IGNORE,
+            REPO_URL                    = process.env.REPO_URL,
+            REPO_USER_NAME              = process.env.REPO_USER_NAME,
+            REPO_USER_EMAIL             = process.env.REPO_USER_EMAIL,
+            REPO_COMMIT_MESSAGE         = process.env.REPO_COMMIT_MESSAGE,
+            REPO_README                 = process.env.REPO_README
+        };
+        
         //status object
         var status = {
             tempPath : '/tmp/',
@@ -59,7 +74,8 @@ module.exports = {
             types : {},
         };
         //polling timeout of the SF connection
-        status.sfConnection.metadata.pollTimeout = process.env.SF_METADATA_POLL_TIMEOUT || 120000;
+        //status.sfConnection.metadata.pollTimeout = process.env.SF_METADATA_POLL_TIMEOUT || 120000;
+        status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 120000;
 
         //creates all the main folders (temp folder, zip folder and git clone folder)
         try{
@@ -81,7 +97,8 @@ module.exports = {
             //login to SF
             sfLogin : function(callback){
                 if(!MUTE) console.log('SF LOGIN');
-                status.sfConnection.login(process.env.SF_USERNAME, process.env.SF_PASSWORD, function(err, lgnResult) {
+//                status.sfConnection.login(process.env.SF_USERNAME, process.env.SF_PASSWORD, function(err, lgnResult) {
+                status.sfConnection.login(myenv.SF_USERNAME, myenv.SF_PASSWORD, function(err, lgnResult) {
                     status.sfLoginResult = lgnResult;
                     return callback((err)?createReturnObject(err, 'SF Login failed'):null);
                 });
@@ -89,7 +106,8 @@ module.exports = {
             //Describes metadata items
             sfDescribeMetadata : function(callback){
                 if(!MUTE) console.log('SF DESCRIBE METADATA');
-                status.sfConnection.metadata.describe(process.env.SF_API_VERSION+'.0', function(err, describe){
+//                status.sfConnection.metadata.describe(process.env.SF_API_VERSION+'.0', function(err, describe){
+                status.sfConnection.metadata.describe(myenv.SF_API_VERSION+'.0', function(err, describe){
                     status.sfDescribe = describe;
                     return callback((err)?createReturnObject(err, 'SF Describe failed'):null);
                 });
@@ -98,7 +116,8 @@ module.exports = {
             sfListMetadata : function(callback){
                 if(!MUTE) console.log('SF LIST DESCRIBE METADATA ALL');
                 var iterations =  parseInt(Math.ceil(status.sfDescribe.metadataObjects.length/3.0));
-                var excludeMetadata = process.env.EXCLUDE_METADATA || '';
+//                var excludeMetadata = process.env.EXCLUDE_METADATA || '';
+                var excludeMetadata = myenv.EXCLUDE_METADATA || '';
                 var excludeMetadataList = excludeMetadata.toLowerCase().split(',');
 
                 var asyncObj = {};
@@ -106,7 +125,8 @@ module.exports = {
                 function listMetadataBatch(qr){
                     return function(cback){
                         if(!MUTE) console.log('SF LIST DESCRIBE METADATA: '+JSON.stringify(qr));
-                        status.sfConnection.metadata.list(qr,process.env.SF_API_VERSION+'.0', function(err, fileProperties){
+//                        status.sfConnection.metadata.list(qr,process.env.SF_API_VERSION+'.0', function(err, fileProperties){
+                        status.sfConnection.metadata.list(qr,myenv.SF_API_VERSION+'.0', function(err, fileProperties){
                             if(!err && fileProperties){
                                 for(var ft = 0; ft < fileProperties.length; ft++){
                                     if(!status.types[fileProperties[ft].type]){
@@ -158,7 +178,8 @@ module.exports = {
                 var stream = status.sfConnection.metadata.retrieve({ 
                 unpackaged: {
                   types: _types,
-                  version: process.env.SF_API_VERSION,
+//                  version: process.env.SF_API_VERSION,
+                  version: myenv.SF_API_VERSION,
                 }
                 }).stream();
                 stream.on('end', function() {
@@ -177,7 +198,8 @@ module.exports = {
                 if(!MUTE) console.log('GIT CLONE');
                 var folderPath = status.tempPath+status.repoPath+status.zipFile;
                 
-                git.clone(process.env.REPO_URL, folderPath, 
+//                git.clone(process.env.REPO_URL, folderPath, 
+                git.clone(myenv.REPO_URL, folderPath, 
                 function(err, _repo){
                     status.gitRepo = _repo;
                     //deletes all cloned files except the .git folder (the ZIP file will be the master)
@@ -194,8 +216,10 @@ module.exports = {
                 var fs = require('fs');
 
                 var gitIgnoreBody = '#ignore files';
-                if(process.env.GIT_IGNORE){
-                    var spl = process.env.GIT_IGNORE.split(',');
+//                if(process.env.GIT_IGNORE){
+//                    var spl = process.env.GIT_IGNORE.split(',');
+                if(myenv.GIT_IGNORE){
+                    var spl = myenv.GIT_IGNORE.split(',');
                     for(var i in spl){
                         if(spl[i]){
                             gitIgnoreBody+='\n'+spl[i];
@@ -203,7 +227,8 @@ module.exports = {
                     }
                 }
 
-                var readmeBody = process.env.REPO_README || "";
+//                var readmeBody = process.env.REPO_README || "";
+                var readmeBody = myenv.REPO_README || "";
                 fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/README.md', readmeBody, function(err) {
                     if(err){
                         return callback(createReturnObject(err, 'README.md file creation failed'));
@@ -235,10 +260,13 @@ module.exports = {
             //Git commit
             gitCommit : function(callback){
                 if(!MUTE) console.log('GIT COMMIT');
-                var userName = process.env.REPO_USER_NAME || "Heroku SFGit";
-                var userEmail = process.env.REPO_USER_EMAIL || "sfgit@heroku.com";
+//                var userName = process.env.REPO_USER_NAME || "Heroku SFGit";
+//                var userEmail = process.env.REPO_USER_EMAIL || "sfgit@heroku.com";
+                var userName = myenv.REPO_USER_NAME || "Heroku SFGit";
+                var userEmail = myenv.REPO_USER_EMAIL || "sfgit@heroku.com";
                 status.gitRepo.identify({"name":userName, "email":userEmail}, function(err, oth){
-                    var commitMessage = process.env.REPO_COMMIT_MESSAGE || 'Automatic commit (sfgit)';
+//                    var commitMessage = process.env.REPO_COMMIT_MESSAGE || 'Automatic commit (sfgit)';
+                    var commitMessage = myenv.REPO_COMMIT_MESSAGE || 'Automatic commit (sfgit)';
                     status.gitRepo.commit(commitMessage, function(err, oth){
                         if(err){
                             err.details = oth;

@@ -6,8 +6,8 @@ var jsforce = require('jsforce');
 var async   = require('async');
 var AdmZip  = require('adm-zip');
 
-var { Pool } = require('pg'); 
-var pool = new Pool(process.env.DATABASE_URL);
+var pg = require('pg'); 
+var pool = new pg.Pool(process.env.DATABASE_URL);
 
 //mutes all logs
 var MUTE = false;

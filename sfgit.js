@@ -132,54 +132,45 @@ module.exports = {
         }
 
         
-        ///////////////////////////////////////////////////////////////////
-        // Connection à la base HC Salesforce, et lecture des orgs à gérer
-        //
-        
-        // connect to Heroku Connect SFOrgInfo DB
-        status.hcPool.connect()
-            .catch(err      => { return mainCallback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
-        console.log('Pool connect OK');
-
-        // connect to Heroku Connect SFOrgInfo DB
-        var query = "SELECT * FROM salesforce.SFOrgInfo__c WHERE sf_username__c='"+ status.selectedUsername +"'";
-        console.log('query = ', query);
-        status.hcPool.query(query)
-            .catch(err      => { return mainCallback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
-            .then((result)  => {
-                var res = result.rows[0];
-
-                myenv = {}
-                myenv.SF_METADATA_POLL_TIMEOUT  = res.sf_metadata_poll_timeout__c;
-                myenv.SF_LOGIN_URL              = res.sf_login_url__c;
-                myenv.SF_USERNAME               = res.sf_username__c;
-                myenv.SF_PASSWORD               = res.sf_password__c;
-                myenv.SF_API_VERSION            = res.sf_api_version__c;
-                myenv.EXCLUDE_METADATA          = res.exclude_metadata__c;
-                myenv.GIT_IGNORE                = res.git_ignore__c;
-                myenv.REPO_URL                  = res.repo_url__c;
-                myenv.REPO_USER_NAME            = res.repo_user_name__c;
-                myenv.REPO_USER_EMAIL           = res.repo_user_email__c;
-                myenv.REPO_README               = res.repo_readme__c;
-                //myenv.REPO_COMMIT_MESSAGE
-
-                allenv[status.selectedUsername] = myenv;
-
-                console.log('### From HC : allenv : ', allenv);
-                return callback(null);
-            });      
-        
-        
-        //////////////////////////////////////////////////////////////////
-        // Boucle pour traiter chaque org Salesforce à gérer
-        
-        
-        myenv = allenv[status.selectedUsername];
-        console.log('### OK !!! allenv : ', allenv);
-        console.log('### OK !!! myenv : ', myenv);
-
         //asyncs jobs called sequentially (all the tasks to be done)
         async.series({
+            // connect to Heroku Connect SFOrgInfo DB
+            hcPoolConnect : function(callback){
+                status.hcPool.connect()
+                    .catch(err      => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
+                console.log('Pool connect OK');
+            },
+
+            // connect to Heroku Connect SFOrgInfo DB
+            hcPoolConnect : function(callback){
+                var query = "SELECT * FROM salesforce.SFOrgInfo__c WHERE sf_username__c='"+ status.selectedUsername +"'";
+                console.log('query = ', query);
+                status.hcPool.query(query)
+                    .catch(err      => { return mainCallback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
+                    .then((result)  => {
+                        var res = result.rows[0];
+
+                        myenv = {}
+                        myenv.SF_METADATA_POLL_TIMEOUT  = res.sf_metadata_poll_timeout__c;
+                        myenv.SF_LOGIN_URL              = res.sf_login_url__c;
+                        myenv.SF_USERNAME               = res.sf_username__c;
+                        myenv.SF_PASSWORD               = res.sf_password__c;
+                        myenv.SF_API_VERSION            = res.sf_api_version__c;
+                        myenv.EXCLUDE_METADATA          = res.exclude_metadata__c;
+                        myenv.GIT_IGNORE                = res.git_ignore__c;
+                        myenv.REPO_URL                  = res.repo_url__c;
+                        myenv.REPO_USER_NAME            = res.repo_user_name__c;
+                        myenv.REPO_USER_EMAIL           = res.repo_user_email__c;
+                        myenv.REPO_README               = res.repo_readme__c;
+                        //myenv.REPO_COMMIT_MESSAGE
+
+                        allenv[status.selectedUsername] = myenv;
+
+                        console.log('### From HC : allenv : ', allenv);
+                        return callback(null);
+                    });      
+            },
+
             //login to SF
             sfLogin : function(callback){
                 if(!MUTE) console.log('SF LOGIN');

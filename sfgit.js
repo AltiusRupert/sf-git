@@ -6,7 +6,7 @@ var jsforce = require('jsforce');
 var async   = require('async');
 var AdmZip  = require('adm-zip');
 
-if(!MUTE) console.log('### DATABASE_URL = ', process.env.DATABASE_URL);
+console.log('### DATABASE_URL = ', process.env.DATABASE_URL);
 var pg = require('pg'); 
 var pool = new pg.Pool(process.env.DATABASE_URL);
 

@@ -9,6 +9,9 @@ var AdmZip  = require('adm-zip');
 if(!MUTE) console.log('### DATABASE_URL = ', process.env.DATABASE_URL);
 var pg = require('pg'); 
 var pool = new pg.Pool(process.env.DATABASE_URL);
+pool.connect();
+console.log('### ici ###');
+
 
 //mutes all logs
 var MUTE = false;

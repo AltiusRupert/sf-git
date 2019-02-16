@@ -29,15 +29,13 @@ function createReturnObject(err, msg){
  */
 function updateWorkInfo(pool, status, message, callback){
     var query = ['UPDATE salesforce.sforginfo__c'];
+    
     query.push('SET');
+    query.push(" Work_LastCommitDate__c     =  "+now());
+    query.push(",Work_LastCommitMessage__c  = '"+message+"'");
+    query.push(",Work_LastCommitStatus__c   = '"+status +"'");
 
-    //query.push(" Work_LastCommitDate__c     =  "+now());
-    //query.push(",Work_LastCommitMessage__c  = '"+message+"'");
-    //query.push(",Work_LastCommitStatus__c   = '"+status +"'");
-
-    query.push("Work_LastCommitStatus__c   = 'nok'");
-
-    query.push('WHERE sf_username__c = ' + username);
+    query.push("WHERE sf_username__c = '" +username+ "'");
 
     console.log('### update HC : query = '+query.join(' '));
     

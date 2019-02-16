@@ -36,10 +36,9 @@ function updateWorkInfo(pool, status, message, callback){
     query.push(",Work_LastCommitStatus__c   = '"+status +"'");
 
     query.push("WHERE sf_username__c = '" +username+ "'");
-
-    console.log('### update HC : query = '+query.join(' '));
     
     var q = query.join(' ');
+    //console.log('### update HC : query = '+q);
     pool.query(q)
         .catch(err => { console.log('Failed to update SF OrgInfo HC database : query = '+q);  });
 }

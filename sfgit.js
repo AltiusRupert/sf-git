@@ -358,17 +358,17 @@ module.exports = {
             deleteFolderRecursive(status.tempPath+status.repoPath+'/');
 
             if(err 
-                && err.details
-                && (err.details.indexOf("up-to-date")>=0 || err.details.indexOf("nothing to commit") >=0)){
-                console.log('Success', err.details);
-                updateWorkInfo(status.hcPool, 'Success', err.details);
-                return mainCallback && mainCallback(null, err.details);
+                && err.error.details
+                && (err.error.details.indexOf("up-to-date")>=0 || err.error.details.indexOf("nothing to commit") >=0)){
+                console.log('Success', err.error.details);
+                updateWorkInfo(status.hcPool, 'Success', err.error.details);
+                return mainCallback && mainCallback(null, err.error.details);
             }
 
-            var details = (err && err.details) || null;
+            var details = (err && err.error && err.error.details) || null;
             if(err){
-                console.log("Error occurred : ", err, err.error.status, err.error.message, err.details);
-                updateWorkInfo(status.hcPool, err.error.status, details);
+                console.log("Error occurred : ", err, err.error.message, err.details+' '+details);
+                updateWorkInfo(status.hcPool, err.error.message, err.details+' '+details);
             } else {
                 console.log('Success');
                 details = 'Success';

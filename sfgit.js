@@ -81,7 +81,9 @@ module.exports = {
                 });
             }
         });
-        pool.end()
+        pool.end();
+        
+        return;
         
         //status object
         var status = {

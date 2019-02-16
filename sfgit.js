@@ -52,19 +52,19 @@ module.exports = {
         
         // Environment information
         var myenv = {
-            SF_METADATA_POLL_TIMEOUT    : process.env.SF_METADATA_POLL_TIMEOUT,
-            SF_USERNAME                 : process.env.SF_USERNAME,
-            SF_PASSWORD                 : process.env.SF_PASSWORD,
-            SF_API_VERSION              : process.env.SF_API_VERSION,
-            EXCLUDE_METADATA            : process.env.EXCLUDE_METADATA,
-            GIT_IGNORE                  : process.env.GIT_IGNORE,
-            REPO_URL                    : process.env.REPO_URL,
-            REPO_USER_NAME              : process.env.REPO_USER_NAME,
-            REPO_USER_EMAIL             : process.env.REPO_USER_EMAIL,
-            REPO_COMMIT_MESSAGE         : process.env.REPO_COMMIT_MESSAGE,
-            REPO_README                 : process.env.REPO_README,
+             SF_METADATA_POLL_TIMEOUT    : process.env.SF_METADATA_POLL_TIMEOUT
+            ,SF_USERNAME                 : process.env.SF_USERNAME
+            ,SF_PASSWORD                 : process.env.SF_PASSWORD
+            ,SF_API_VERSION              : process.env.SF_API_VERSION
+            ,EXCLUDE_METADATA            : process.env.EXCLUDE_METADATA
+            ,GIT_IGNORE                  : process.env.GIT_IGNORE
+            ,REPO_URL                    : process.env.REPO_URL
+            ,REPO_USER_NAME              : process.env.REPO_USER_NAME
+            ,REPO_USER_EMAIL             : process.env.REPO_USER_EMAIL
+            ,REPO_COMMIT_MESSAGE         : process.env.REPO_COMMIT_MESSAGE
+            ,REPO_README                 : process.env.REPO_README
             
-            DATABASE_URL                : process.env.DB_URL
+            ,DATABASE_URL                : "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
         };
         if(!MUTE) console.log('### myenv = ', myenv);
         

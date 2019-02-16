@@ -68,6 +68,18 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', process.env.DATABASE_URL);
         var pool = new pg.Client(process.env.DATABASE_URL);
         if(!MUTE) console.log('### DB pool : ' + pool);
+        
+        pool.connect();
+        pool.query("SELECT * FROM SFOrgInfo__c", function(err, result) {
+            if(err) {
+                console.error('### database error : ', err);
+            } else {
+                console.log('### database rows : ', result.rows);
+            }
+        });
+        pool.end();
+
+        /*
         pool.connect(function(err, client, done) {
             if (err) {
                 console.log('### cannot connect to the DB : ' + err);
@@ -83,8 +95,8 @@ module.exports = {
                 if(!MUTE) console.log('### DB query : done');
             }
         });
-        pool.end();
-        
+        */
+                
         return;
 
         

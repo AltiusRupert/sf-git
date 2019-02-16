@@ -137,16 +137,19 @@ module.exports = {
             // connect to Heroku Connect SFOrgInfo DB
             hcPoolConnect : function(callback){
                 status.hcPool.connect()
-                    .catch(err      => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
-                console.log('Pool connect OK');
+                    .catch(err => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
+                    .then((result) => {
+                        console.log('Pool connect OK');
+                        return callback(null);
+                });
             },
 
             // connect to Heroku Connect SFOrgInfo DB
-            hcPoolConnect : function(callback){
+            hcPoolConnect : function(callback) {
                 var query = "SELECT * FROM salesforce.SFOrgInfo__c WHERE sf_username__c='"+ status.selectedUsername +"'";
                 console.log('query = ', query);
                 status.hcPool.query(query)
-                    .catch(err      => { return mainCallback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
+                    .catch(err      => { return callback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
                     .then((result)  => {
                         var res = result.rows[0];
 

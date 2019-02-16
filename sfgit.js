@@ -5,9 +5,7 @@ var fstream = require('fstream');
 var jsforce = require('jsforce');
 var async = require('async');
 var AdmZip = require('adm-zip');
-
-const { Client } = require('pg');
-const { DATABASE_URL } = process.env;
+var pg = require('pg');
 
 //muts all logs
 var MUTE = false;
@@ -67,19 +65,20 @@ module.exports = {
         if(!MUTE) console.log('### myenv = ', myenv);
         
         // Database OrgInfo
+        if(!MUTE) console.log('### DATABASE_URL = ', DATABASE_URL);
         const client = new Client({
-            connectionString: DATABASE_URL,
+            connectionString: process.env.DATABASE_URL,
         });
-        client.connect()
-            .then(() => client.query('SELECT * FROM SFOrgInfo__c'))
-            .then((result) => {
-                if(!MUTE) console.log('### database result = ', result.rows);
-                client.end();
-            })
-            .catch(() => {
-                if(!MUTE) console.log('### database error');
-                client.end();
+        pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+            client.query('SELECT * FROM SFOrgInfo__c', function(err, result) {
+                done();
+                if(err) {
+                    console.error('### database error : ', err);
+                } else {
+                    console.log('### database rows : ', result.rows);
+                }
             });
+        });
         
         //status object
         var status = {

@@ -32,7 +32,7 @@ function updateWorkInfo(pool, status, message, callback){
     
     query.push('SET');
     query.push(" Work_LastCommitDate__c     = '"+now()  +"'");
-    query.push(",Work_LastCommitMessage__c  = '"+message+"'");
+    //query.push(",Work_LastCommitMessage__c  = '"+message+"'");
     query.push(",Work_LastCommitStatus__c   = '"+status +"'");
 
     query.push("WHERE sf_username__c = '" +username+ "'");

@@ -49,19 +49,36 @@ module.exports = {
         
         // Environment information
         var myenv = {
-            SF_METADATA_POLL_TIMEOUT    = process.env.SF_METADATA_POLL_TIMEOUT,
-            SF_USERNAME                 = process.env.SF_USERNAME,
-            SF_PASSWORD                 = process.env.SF_PASSWORD,
-            SF_API_VERSION              = process.env.SF_API_VERSION,
-            EXCLUDE_METADATA            = process.env.EXCLUDE_METADATA,
-            GIT_IGNORE                  = process.env.GIT_IGNORE,
-            REPO_URL                    = process.env.REPO_URL,
-            REPO_USER_NAME              = process.env.REPO_USER_NAME,
-            REPO_USER_EMAIL             = process.env.REPO_USER_EMAIL,
-            REPO_COMMIT_MESSAGE         = process.env.REPO_COMMIT_MESSAGE,
-            REPO_README                 = process.env.REPO_README
+            SF_METADATA_POLL_TIMEOUT    : process.env.SF_METADATA_POLL_TIMEOUT,
+            SF_USERNAME                 : process.env.SF_USERNAME,
+            SF_PASSWORD                 : process.env.SF_PASSWORD,
+            SF_API_VERSION              : process.env.SF_API_VERSION,
+            EXCLUDE_METADATA            : process.env.EXCLUDE_METADATA,
+            GIT_IGNORE                  : process.env.GIT_IGNORE,
+            REPO_URL                    : process.env.REPO_URL,
+            REPO_USER_NAME              : process.env.REPO_USER_NAME,
+            REPO_USER_EMAIL             : process.env.REPO_USER_EMAIL,
+            REPO_COMMIT_MESSAGE         : process.env.REPO_COMMIT_MESSAGE,
+            REPO_README                 : process.env.REPO_README
         };
         if(!MUTE) console.log('### myenv = ', myenv);
+        
+        // Database OrgInfo
+        /*
+        const client = new Client({
+            connectionString: myenv.DATABASE_URL,
+        });
+        client.connect()
+            .then(() => client.query('SELECT * FROM hellotable'))
+            .then((result) => {
+                if(!MUTE) console.log('### database result = ', result);
+                client.end();
+            })
+            .catch(() => {
+                if(!MUTE) console.log('### database error');
+                client.end();
+            });
+           */
         
         //status object
         var status = {

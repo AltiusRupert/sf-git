@@ -91,7 +91,7 @@ function hcPoolQuery (callback) {
     var query = "SELECT * FROM salesforce.SFOrgInfo__c WHERE sf_username__c='"+ status.selectedUsername +"'";
     status.hcPool.query(query)
         .catch(err      => { return callback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
-        .then((result)  => 
+        .then((result)  => {
             result.rows.forEach(function(row) {
 
                 myenv = {};
@@ -109,7 +109,7 @@ function hcPoolQuery (callback) {
                 //myenv.REPO_COMMIT_MESSAGE
 
                 allenv[row.sf_username__c] = myenv;
-            });
+            })
         
             console.log('### From HC : allenv : ', allenv);
             return;

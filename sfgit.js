@@ -270,9 +270,8 @@ module.exports = {
                     console.log("git clone "+url+" "+myenv.REPO_BRANCH);
                     git.clone(url, folderPath, 0, myenv.REPO_BRANCH,
                     function(err, _repo){
-                        console.log("_repo = ", _repo);
                         status.gitRepo = _repo;
-                        status.gitBranch = myenv.REPO_BRANCH;
+                        console.log("_repo = ", status.gitRepo);
                         //deletes all cloned files except the .git folder (the ZIP file will be the master)
                         deleteFolderRecursive(folderPath, '.git', true);
                         return callback((err)?createReturnObject(err, 'Git clone failed'):null);
@@ -281,8 +280,8 @@ module.exports = {
                     console.log("git clone "+url);
                     git.clone(url, folderPath,
                     function(err, _repo){
-                        console.log("_repo = ", _repo);
                         status.gitRepo = _repo;
+                        console.log("_repo = ", status.gitRepo);
                         //deletes all cloned files except the .git folder (the ZIP file will be the master)
                         deleteFolderRecursive(folderPath, '.git', true);
                         return callback((err)?createReturnObject(err, 'Git clone failed'):null);

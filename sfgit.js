@@ -268,6 +268,7 @@ module.exports = {
                     git.clone(myenv.REPO_URL, folderPath, 0, branch, function(err, _repo){
                         status.gitRepo = _repo;
                         return callback((err)?createReturnObject(err, 'Git clone failed'):null);
+                    });
                 } else {
                     git.clone(myenv.REPO_URL, folderPath, function(err, _repo){
                         status.gitRepo = _repo;

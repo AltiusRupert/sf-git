@@ -264,9 +264,10 @@ module.exports = {
                 myenv = allenv[status.selectedUsername];
                 var folderPath = status.tempPath+status.repoPath+status.zipFile;
                 
-                if (status.branch) {
-                    git.clone(myenv.REPO_URL, folderPath, 0, status.branch, function(err, _repo){
+                if (myenv.REPO_BRANCH) {
+                    git.clone(myenv.REPO_URL, folderPath, 0, myenv.REPO_BRANCH, function(err, _repo){
                         status.gitRepo = _repo;
+                        status.gitBranch = myenv.REPO_BRANCH;
                         return callback((err)?createReturnObject(err, 'Git clone failed'):null);
                     });
                 } else {
@@ -349,8 +350,9 @@ module.exports = {
             gitPush : function(callback){
                 if(!MUTE) console.log('GIT PUSH');
                 myenv = allenv[status.selectedUsername];
+                var branch = myenv.REPO_BRANCH || "master";
                 
-                status.gitRepo.remote_push("origin", "master", function(err, oth){
+                status.gitRepo.remote_push("origin", branch, function(err, oth){
                     if(err){
                         err.details = oth;
                     }

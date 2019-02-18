@@ -285,6 +285,7 @@ module.exports = {
                     status.gitRepo = _repo;
                     //deletes all cloned files except the .git folder (the ZIP file will be the master)
                     //deleteFolderRecursive(folderPath, '.git', true);
+                    if(!MUTE) console.log('GIT CLONE - err = ', err);
                     return callback((err)?createReturnObject(err, 'Git clone failed'):null);
                 });
             },

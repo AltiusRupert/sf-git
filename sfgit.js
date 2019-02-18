@@ -81,7 +81,6 @@ module.exports = {
                         
         //status object
         var DATABASE_URL = "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
-        console.log('Working on org of selected username : ', status.selectedUsername);
         status = {
             selectedUsername : username      // Which SF org username do we want to work with ?
             ,REPO_COMMIT_MESSAGE : process.env.REPO_COMMIT_MESSAGE
@@ -95,6 +94,7 @@ module.exports = {
             ,sfLoginResult   : null
             ,types           : {}
         };        
+        console.log('Working on org of selected username : ', status.selectedUsername);
 
         //creates all the main folders (temp folder, zip folder and git clone folder)
         try{
@@ -266,14 +266,14 @@ module.exports = {
                 var url = "https://"+myenv.REPO_USER_NAME+":"+myenv.REPO_PASSWORD+"@"+myenv.REPO_URL;
                 
                 if (myenv.REPO_BRANCH) {
-                    console.log("git clone "+url+" "+myenv.REPO_BRANCH+"("+myenv.REPO_USER_NAME+","+myenv.REPO_PASSWORD+")"));
+                    console.log("git clone "+url+" "+myenv.REPO_BRANCH+"("+myenv.REPO_USER_NAME+","+myenv.REPO_PASSWORD+")");
                     git.clone(url, folderPath, 0, myenv.REPO_BRANCH, function(err, _repo){
                         status.gitRepo = _repo;
                         status.gitBranch = myenv.REPO_BRANCH;
                         return callback((err)?createReturnObject(err, 'Git clone failed'):null);
                     });
                 } else {
-                    console.log("git clone "+url+" ("+myenv.REPO_USER_NAME+","+myenv.REPO_PASSWORD+")"));
+                    console.log("git clone "+url+" ("+myenv.REPO_USER_NAME+","+myenv.REPO_PASSWORD+")");
                     git.clone(url, folderPath, function(err, _repo){
                         status.gitRepo = _repo;
                         //deletes all cloned files except the .git folder (the ZIP file will be the master)

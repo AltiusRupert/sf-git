@@ -32,7 +32,7 @@ function updateWorkInfo(pool, status, message, callback){
     
     query.push('SET');
     query.push(" Work_LastCommitDate__c     = '"+now()  +"'");
-    //query.push(",Work_LastCommitMessage__c  = '"+message+"'");
+    query.push(",Work_LastCommitMessage__c  = '"+message+"'");
     query.push(",Work_LastCommitStatus__c   = '"+status +"'");
 
     query.push("WHERE sf_username__c = '" +username+ "'");
@@ -78,25 +78,7 @@ module.exports = {
         // Environment information
         var allenv = [];
         var myenv = {};
-        
-        /*
-        var myenv = {
-             SF_METADATA_POLL_TIMEOUT    : process.env.SF_METADATA_POLL_TIMEOUT
-            ,SF_LOGIN_URL                : process.env.SF_LOGIN_URL | "login.salesforce.com"
-            ,SF_USERNAME                 : process.env.SF_USERNAME
-            ,SF_PASSWORD                 : process.env.SF_PASSWORD
-            ,SF_API_VERSION              : process.env.SF_API_VERSION
-            ,EXCLUDE_METADATA            : process.env.EXCLUDE_METADATA
-            ,GIT_IGNORE                  : process.env.GIT_IGNORE
-            ,REPO_URL                    : process.env.REPO_URL
-            ,REPO_USER_NAME              : process.env.REPO_USER_NAME
-            ,REPO_USER_EMAIL             : process.env.REPO_USER_EMAIL
-            ,REPO_README                 : process.env.REPO_README
-
-            ,REPO_COMMIT_MESSAGE         : process.env.REPO_COMMIT_MESSAGE
-        };
-        */
-                
+                        
         //status object
         var DATABASE_URL = "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
         console.log('Working on org of selected username : ', status.selectedUsername);
@@ -160,6 +142,7 @@ module.exports = {
                         myenv.EXCLUDE_METADATA          = res.exclude_metadata__c;
                         myenv.GIT_IGNORE                = res.git_ignore__c;
                         myenv.REPO_URL                  = res.repo_url__c;
+                        myenv.REPO_BRANCH               = res.repo_branch__c;
                         myenv.REPO_USER_NAME            = res.repo_user_name__c;
                         myenv.REPO_USER_EMAIL           = res.repo_user_email__c;
                         myenv.REPO_README               = res.repo_readme__c;
@@ -281,13 +264,18 @@ module.exports = {
                 myenv = allenv[status.selectedUsername];
                 var folderPath = status.tempPath+status.repoPath+status.zipFile;
                 
-                git.clone(myenv.REPO_URL, folderPath, function(err, _repo){
-                    status.gitRepo = _repo;
-                    //deletes all cloned files except the .git folder (the ZIP file will be the master)
-                    //deleteFolderRecursive(folderPath, '.git', true);
-                    if(!MUTE) console.log('GIT CLONE - err = ', err);
-                    return callback((err)?createReturnObject(err, 'Git clone failed'):null);
-                });
+                if (branch) {
+                    git.clone(myenv.REPO_URL, folderPath, 0, branch, function(err, _repo){
+                        status.gitRepo = _repo;
+                        return callback((err)?createReturnObject(err, 'Git clone failed'):null);
+                } else {
+                    git.clone(myenv.REPO_URL, folderPath, function(err, _repo){
+                        status.gitRepo = _repo;
+                        //deletes all cloned files except the .git folder (the ZIP file will be the master)
+                        //deleteFolderRecursive(folderPath, '.git', true);
+                        return callback((err)?createReturnObject(err, 'Git clone failed'):null);
+                    });
+                }
             },
             
             //Unzip metadata zip file

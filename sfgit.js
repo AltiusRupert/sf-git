@@ -144,6 +144,7 @@ module.exports = {
                         myenv.REPO_URL                  = res.repo_url__c;
                         myenv.REPO_BRANCH               = res.repo_branch__c;
                         myenv.REPO_USER_NAME            = res.repo_user_name__c;
+                        myenv.REPO_PASSWORD             = res.repo_password__c;
                         myenv.REPO_USER_EMAIL           = res.repo_user_email__c;
                         myenv.REPO_README               = res.repo_readme__c;
                         //myenv.REPO_COMMIT_MESSAGE

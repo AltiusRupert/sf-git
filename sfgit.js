@@ -260,29 +260,34 @@ module.exports = {
             },
             
             //Clones original repo
-            gitClone : function(callback){
+            // NodeGit :
+            // https://www.nodegit.org/api/clone/#clone
+            // https://stackoverflow.com/questions/22054799/using-nodegit-cloneoptions-to-clone-a-branch
+            //    var Git = require('nodegit');
+            //    var clone = Git.Clone.clone;
+            //    var branch = 'development';
+            //    var cloneOptions = new Git.CloneOptions();    
+            //    cloneOptions.checkoutBranch = branch;  
+            //    clone(url, directory, cloneOptions)
+            //        .then(function(repository){
+            //            console.log(repository);
+            //        });
+            // https://www.nodegit.org/guides/cloning/
+            
+        gitClone : function(callback){
                 if(!MUTE) console.log('GIT CLONE');
                 myenv = allenv[status.selectedUsername];
                 var folderPath = status.tempPath+status.repoPath+status.zipFile;
                 var url = "https://"+myenv.REPO_USER_NAME+":"+myenv.REPO_PASSWORD+"@"+myenv.REPO_URL;
-                
-                if (myenv.REPO_BRANCH) {
-                    git.clone(url, folderPath, 0, myenv.REPO_BRANCH,
-                    function(err, _repo){
-                        status.gitRepo = _repo;
-                        //deletes all cloned files except the .git folder (the ZIP file will be the master)
-                        deleteFolderRecursive(folderPath, '.git', true);
-                        return callback((err)?createReturnObject(err, 'Git clone failed'):null);
-                    });
-                } else {
-                    git.clone(url, folderPath,
-                    function(err, _repo){
-                        status.gitRepo = _repo;
-                        //deletes all cloned files except the .git folder (the ZIP file will be the master)
-                        deleteFolderRecursive(folderPath, '.git', true);
-                        return callback((err)?createReturnObject(err, 'Git clone failed'):null);
-                    });
-                }
+                var branch = myenv.REPO_BRANCH || "master";
+            
+                git.clone(url, folderPath, 0, branch,
+                function(err, _repo){
+                    status.gitRepo = _repo;
+                    //deletes all cloned files except the .git folder (the ZIP file will be the master)
+                    deleteFolderRecursive(folderPath, '.git', true);
+                    return callback((err)?createReturnObject(err, 'Git clone failed'):null);
+                });
             },
             
             //Unzip metadata zip file

@@ -267,7 +267,6 @@ module.exports = {
                 var url = "https://"+myenv.REPO_USER_NAME+":"+myenv.REPO_PASSWORD+"@"+myenv.REPO_URL;
                 
                 if (myenv.REPO_BRANCH) {
-                    console.log("git clone "+url+" "+myenv.REPO_BRANCH);
                     git.clone(url, folderPath, 0, myenv.REPO_BRANCH,
                     function(err, _repo){
                         status.gitRepo = _repo;
@@ -276,7 +275,6 @@ module.exports = {
                         return callback((err)?createReturnObject(err, 'Git clone failed'):null);
                     });
                 } else {
-                    console.log("git clone "+url);
                     git.clone(url, folderPath,
                     function(err, _repo){
                         status.gitRepo = _repo;

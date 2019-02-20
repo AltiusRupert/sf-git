@@ -221,7 +221,7 @@ module.exports = {
                     }
                 }
                 async.series(asyncObj, function(err, results){
-                    return callback((err)?createReturnObject(err, 'SF Describe list metadata failed'):null);
+                    return callback((err)?createReturnObject(err, 'SF Describe list metadata failed : '+JSON.stringify(err)):null);
                 });
                 
                 
@@ -258,7 +258,8 @@ module.exports = {
                 if(!MUTE) console.log('SF RETRIEVE ZIP - next is pipe');
                 stream.pipe(fs.createWriteStream(status.tempPath+status.zipPath+status.zipFile));
                 if(!MUTE) console.log('SF RETRIEVE ZIP - done');
-                //return callback(null);
+                
+                // le retour se fait dans 'stream.on()'
             },
             
             //Clones original repo
@@ -318,13 +319,20 @@ module.exports = {
                         if(err){
                             return callback(createReturnObject(err, '.gitignore file creation failed'));
                         }
-                        try{
-                            var zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
-                            zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
-                            return callback(null);
-                        }catch(ex){
-                            return callback(createReturnObject(ex, 'Unzip failed'));
+                        var zip = null;
+                        try {
+                            if(!MUTE) console.log('UNZIP FILE - creating AdmZip('+status.tempPath+status.zipPath+status.zipFile+')');
+                            zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
+                        } catch(ex) {
+                            return callback(createReturnObject(ex, 'AdmZip failed : '+JSON.stringify(ex)));
                         }
+                        try {
+                            zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
+                        } catch(ex) {
+                            return callback(createReturnObject(ex, 'Unzip failed : '+JSON.stringify(ex)));
+                        }
+                        
+                        return callback(null);
                     }); 
                 });
             },

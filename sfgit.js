@@ -287,7 +287,7 @@ module.exports = {
                     status.gitRepo = _repo;
                     //deletes all cloned files except the .git folder (the ZIP file will be the master)
                     deleteFolderRecursive(folderPath, '.git', true);
-                    return callback((err)?createReturnObject(err, 'Git clone failed'):null);
+                    return callback((err)?createReturnObject(err, 'Git clone failed : '+JSON.stringify(err)):null);
                 });
             },
             
@@ -336,7 +336,7 @@ module.exports = {
                 myenv = allenv[status.selectedUsername];
                 
                 status.gitRepo.add("-A",function(err){
-                    return callback((err)?createReturnObject(err, 'git add failed'):null);
+                    return callback((err)?createReturnObject(err, 'git add failed : '+JSON.stringify(err)):null);
                 });
             },
             
@@ -352,7 +352,7 @@ module.exports = {
                         if(err){
                             err.details = oth;
                         }
-                        return callback((err)?createReturnObject(err, 'git commit failed'):null);
+                        return callback((err)?createReturnObject(err, 'git commit failed : '+JSON.stringify(err)):null);
                     });
                 });
             },
@@ -367,7 +367,7 @@ module.exports = {
                     if(err){
                         err.details = oth;
                     }
-                    return callback((err)?createReturnObject(err, 'git push failed'):null);
+                    return callback((err)?createReturnObject(err, 'git push failed : '+JSON.stringify(err)):null);
                 });
             },
         },

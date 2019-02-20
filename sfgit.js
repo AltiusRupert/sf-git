@@ -374,8 +374,8 @@ module.exports = {
                      
         function(err, results){
             //deletes all temp files
-            deleteFolderRecursive(zipFolderPath+'/');
-            deleteFolderRecursive(repoFolderPath+'/');
+            deleteFolderRecursive(status.tempPath+status.zipPath+'/');
+            deleteFolderRecursive(status.tempPath+status.repoPath+'/');
 
             if(err 
                 && err.error.details

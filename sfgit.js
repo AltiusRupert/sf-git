@@ -32,13 +32,13 @@ function updateWorkInfo(pool, status, message){
     
     query.push('SET');
     query.push(" Work_LastCommitDate__c     = '" +now()                           + "'");
-    query.push(",Work_LastCommitMessage__c  = '" +     message.replace("\'", "\'")+ "'");
+    query.push(",Work_LastCommitMessage__c  = '" +(message+'').replace("\'", "\'")+ "'");
     query.push(",Work_LastCommitStatus__c   = '" + (status+'').replace("\'", "\'")+ "'");
 
     query.push("WHERE sf_username__c = '" +username+ "'");
     
     var q = query.join(' ');
-    //console.log('### updateWorkInfo : query = '+q);
+    console.log('### updateWorkInfo : query = '+q);
     pool.query(q)
         .catch(err => { console.log('Failed to update SF OrgInfo HC database : query = '+q+' - err = ', err);  });
 }

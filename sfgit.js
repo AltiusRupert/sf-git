@@ -322,7 +322,7 @@ module.exports = {
                             return callback(createReturnObject(err, '.gitignore file creation failed'));
                         }
                         try {
-                            if(!MUTE) console.log('UNZIP FILE - ok4');
+                            if(!MUTE) console.log('UNZIP FILE - ok4 : ', status.tempPath+status.zipPath+status.zipFile);
                             var zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
                             if(!MUTE) console.log('UNZIP FILE - ok5');
                             zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);

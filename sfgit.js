@@ -57,19 +57,19 @@ function now() {
  * @doNotDeleteRoot: do not delete root folder
  */
 var deleteFolderRecursive = function(path, exclude, doNotDeleteRoot) {
-  if( fs.existsSync(path) ) {
-    fs.readdirSync(path).forEach(function(file,index){
-      var curPath = path + "/" + file;
-      if(fs.lstatSync(curPath).isDirectory()) { // recurse
-        if(!exclude || file != exclude){
-            deleteFolderRecursive(curPath, exclude);
-        }
-      } else { // delete file
-        fs.unlinkSync(curPath);
-      }
-    });
-    if(!doNotDeleteRoot) fs.rmdirSync(path);
-  }
+    if( fs.existsSync(path) ) {
+        fs.readdirSync(path).forEach(function(file,index){
+            var curPath = path + "/" + file;
+            if(fs.lstatSync(curPath).isDirectory()) { // recurse
+                if(!exclude || file != exclude){
+                    deleteFolderRecursive(curPath, exclude);
+                }
+            } else { // delete file
+                fs.unlinkSync(curPath);
+            }
+        });
+        if(!doNotDeleteRoot) fs.rmdirSync(path);
+    }
 };
 
 
@@ -242,8 +242,8 @@ module.exports = {
                 }
                 var stream = status.sfConnection.metadata.retrieve({ 
                     unpackaged: {
-                        types: _types,
-                        version: myenv.SF_API_VERSION,
+                        types   : _types,
+                        version : myenv.SF_API_VERSION,
                     }
                 }).stream();
                 stream.on('end', function() {
@@ -254,6 +254,7 @@ module.exports = {
                     if(!MUTE) console.log('SF RETRIEVE ZIP - error ', err);
                     return callback((err)?createReturnObject(err, 'SF Retrieving metadata ZIP file failed'):null);
                 });
+                
                 if(!MUTE) console.log('SF RETRIEVE ZIP - next is pipe');
                 stream.pipe(fs.createWriteStream(status.tempPath+status.zipPath+status.zipFile));
                 if(!MUTE) console.log('SF RETRIEVE ZIP - done');
@@ -275,15 +276,14 @@ module.exports = {
             //        });
             // https://www.nodegit.org/guides/cloning/
             
-        gitClone : function(callback){
+            gitClone : function(callback){
                 myenv = allenv[status.selectedUsername];
                 var folderPath = status.tempPath+status.repoPath+status.zipFile;
                 var url = "https://"+myenv.REPO_USER_NAME+":"+myenv.REPO_PASSWORD+"@"+myenv.REPO_URL;
                 var branch = myenv.REPO_BRANCH || "master";
             
                 if(!MUTE) console.log('GIT CLONE '+url+' '+folderPath+' '+branch);
-                git.clone(url, folderPath, 1, branch,
-                function(err, _repo){
+                git.clone(url, folderPath, 1, branch, function(err, _repo){
                     status.gitRepo = _repo;
                     //deletes all cloned files except the .git folder (the ZIP file will be the master)
                     deleteFolderRecursive(folderPath, '.git', true);
@@ -320,6 +320,7 @@ module.exports = {
                         }
                         try {
                             var zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
+                            if(!MUTE) console.log('UNZIP FILE : '+status.tempPath+status.repoPath+status.zipFile+'/');
                             zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
                             return callback(null);
                         } catch(ex) {
@@ -344,8 +345,9 @@ module.exports = {
             gitCommit : function(callback){
                 if(!MUTE) console.log('GIT COMMIT');
                 myenv = allenv[status.selectedUsername];
-                var userName = myenv.REPO_USER_NAME || "Heroku SFGit";
+                var userName  = myenv.REPO_USER_NAME  || "Heroku SFGit";
                 var userEmail = myenv.REPO_USER_EMAIL || "sfgit@heroku.com";
+
                 status.gitRepo.identify({"name":userName, "email":userEmail}, function(err, oth){
                     var commitMessage = status.REPO_COMMIT_MESSAGE || 'Automatic commit (sfgit)';
                     status.gitRepo.commit(commitMessage, function(err, oth){

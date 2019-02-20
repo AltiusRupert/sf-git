@@ -38,7 +38,7 @@ function updateWorkInfo(pool, status, message, callback){
     query.push("WHERE sf_username__c = '" +username+ "'");
     
     var q = query.join(' ');
-    //console.log('### update HC : query = '+q);
+    console.log('### updateWorkInfo : query = '+q);
     pool.query(q)
         .catch(err => { console.log('Failed to update SF OrgInfo HC database : query = '+q);  });
 }

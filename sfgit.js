@@ -28,12 +28,12 @@ function createReturnObject(err, msg){
  * Update Heroku Connect database : work status, message, last commit date
  */
 function updateWorkInfo(pool, status, message){
-    var query = ['UPDATE salesforce.sforginfo__c'];
+    var query = ['UPDATE salesforce.sforginfo__c'];    
     
     query.push('SET');
-    query.push(" Work_LastCommitDate__c     = '"+now()  +"'");
-    query.push(",Work_LastCommitMessage__c  = '"+message+"'");
-    query.push(",Work_LastCommitStatus__c   = '"+status +"'");
+    query.push(" Work_LastCommitDate__c     = '" +now()                      + "'");
+    query.push(",Work_LastCommitMessage__c  = '" +message.replace("\'", "\'")+ "'");
+    query.push(",Work_LastCommitStatus__c   = '" + status.replace("\'", "\'")+ "'");
 
     query.push("WHERE sf_username__c = '" +username+ "'");
     

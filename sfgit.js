@@ -226,6 +226,7 @@ module.exports = {
                 
                 
             },
+            
             //Retrieving ZIP file of metadata
             sfRetrieveZip : function(callback){
                 //should use describe
@@ -233,12 +234,15 @@ module.exports = {
                 if(!MUTE) console.log('SF RETRIEVE ZIP');
                 myenv = allenv[status.selectedUsername];
                 
+                // Va chercher tous les types stockés dans status.types ...
                 var _types = [];
                 for(var t in status.types){
-                    _types.push({
-                        members: status.types[t],
-                        name: t,
-                    });
+                    if(t=='ApexClass') {
+                        _types.push({
+                            members: status.types[t],
+                            name: t,
+                        });
+                    }
                 }
                 var stream = status.sfConnection.metadata.retrieve({ 
                     unpackaged: {
@@ -246,6 +250,8 @@ module.exports = {
                         version : myenv.SF_API_VERSION,
                     }
                 }).stream();
+                
+                // ... et les "pipe" dans le fichier Zip
                 stream.on('end', function() {
                     if(!MUTE) console.log('SF RETRIEVE ZIP - end');
                     return callback(null);
@@ -255,9 +261,8 @@ module.exports = {
                     return callback((err)?createReturnObject(err, 'SF Retrieving metadata ZIP file failed'):null);
                 });
                 
-                if(!MUTE) console.log('SF RETRIEVE ZIP - next is pipe');
                 stream.pipe(fs.createWriteStream(status.tempPath+status.zipPath+status.zipFile));
-                if(!MUTE) console.log('SF RETRIEVE ZIP - done');
+                if(!MUTE) console.log('SF RETRIEVE ZIP - getting Metadata from SF ...');
                 
                 // le retour se fait dans 'stream.on()'
             },
@@ -310,15 +315,20 @@ module.exports = {
                     }
                 }
 
+                // Create README file
                 var readmeBody = process.env.REPO_README || "";
                 fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/README.md', readmeBody, function(err) {
                     if(err){
                         return callback(createReturnObject(err, 'README.md file creation failed'));
                     }
+                    
+                    // Create .gitignore file file
                     fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/.gitignore', gitIgnoreBody, function(err) {
                         if(err){
                             return callback(createReturnObject(err, '.gitignore file creation failed'));
                         }
+                        
+                        // On ouvre le zip ...
                         var zip = null;
                         try {
                             if(!MUTE) console.log('UNZIP FILE - creating AdmZip('+status.tempPath+status.zipPath+status.zipFile+')');
@@ -326,6 +336,8 @@ module.exports = {
                         } catch(ex) {
                             return callback(createReturnObject(ex, 'AdmZip failed : '+JSON.stringify(ex)));
                         }
+                        
+                        // ... et on extrait tous les fichiers du zip
                         try {
                             zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
                         } catch(ex) {
@@ -342,7 +354,8 @@ module.exports = {
                 if(!MUTE) console.log('GIT ADD');
                 myenv = allenv[status.selectedUsername];
                 
-                status.gitRepo.add("-A",function(err){
+                // git -A : on ajoute tout au repo
+                status.gitRepo.add("-A", function(err){
                     return callback((err)?createReturnObject(err, 'git add failed : '+JSON.stringify(err)):null);
                 });
             },

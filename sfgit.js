@@ -150,8 +150,6 @@ module.exports = {
                         //myenv.REPO_COMMIT_MESSAGE
 
                         allenv[status.selectedUsername] = myenv;
-                        //polling timeout of the SF connection
-                        status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
 
                         console.log('### From HC : allenv : ', allenv);
                         return callback(null);
@@ -163,6 +161,7 @@ module.exports = {
                 if(!MUTE) console.log('SF LOGIN');
                 myenv = allenv[status.selectedUsername];
                 status.sfConnection = new jsforce.Connection({ loginUrl: myenv.SF_LOGIN_URL });
+                status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
                 status.sfConnection.login(myenv.SF_USERNAME, myenv.SF_PASSWORD, function(err, lgnResult) {
                     status.sfLoginResult = lgnResult;
                     return callback((err)?createReturnObject(err, 'SF Login failed ('+myenv.SF_LOGIN_URL+', '+myenv.SF_USERNAME+', '+myenv.SF_PASSWORD+')'):null);

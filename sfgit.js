@@ -311,18 +311,24 @@ module.exports = {
 
                 var readmeBody = process.env.REPO_README || "";
                 fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/README.md', readmeBody, function(err) {
-                    if(err){
+                    if(!MUTE) console.log('UNZIP FILE - ok1');
+                    if(err) {
                         return callback(createReturnObject(err, 'README.md file creation failed'));
                     }
+                    if(!MUTE) console.log('UNZIP FILE - ok2');
                     fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/.gitignore', gitIgnoreBody, function(err) {
-                        if(err){
+                        if(!MUTE) console.log('UNZIP FILE - ok3');
+                        if(err) {
                             return callback(createReturnObject(err, '.gitignore file creation failed'));
                         }
-                        try{
+                        try {
+                            if(!MUTE) console.log('UNZIP FILE - ok4');
                             var zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
+                            if(!MUTE) console.log('UNZIP FILE - ok5');
                             zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
+                            if(!MUTE) console.log('UNZIP FILE - ok6');
                             return callback(null);
-                        }catch(ex){
+                        } catch(ex) {
                             return callback(createReturnObject(ex, 'Unzip failed : '+JSON.stringify(ex)));
                         }
                     }); 

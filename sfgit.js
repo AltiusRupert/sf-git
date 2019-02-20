@@ -27,7 +27,7 @@ function createReturnObject(err, msg){
 /*
  * Update Heroku Connect database : work status, message, last commit date
  */
-function updateWorkInfo(pool, status, message, callback){
+function updateWorkInfo(pool, status, message){
     var query = ['UPDATE salesforce.sforginfo__c'];
     
     query.push('SET');
@@ -38,9 +38,9 @@ function updateWorkInfo(pool, status, message, callback){
     query.push("WHERE sf_username__c = '" +username+ "'");
     
     var q = query.join(' ');
-    console.log('### updateWorkInfo : query = '+q);
+    //console.log('### updateWorkInfo : query = '+q);
     pool.query(q)
-        .catch(err => { console.log('Failed to update SF OrgInfo HC database : query = '+q);  });
+        .catch(err => { console.log('Failed to update SF OrgInfo HC database : query = '+q+' - err = ', err);  });
 }
 
 function now() {
@@ -178,7 +178,7 @@ module.exports = {
             },
             //Lists of all metadata details
             sfListMetadata : function(callback){
-                if(!MUTE) console.log('SF LIST DESCRIBE METADATA ALL');
+                if(!MUTE) console.log('SF LIST DESCRIBE METADATA');
                 myenv = allenv[status.selectedUsername];
                 var iterations =  parseInt(Math.ceil(status.sfDescribe.metadataObjects.length/3.0));
                 var excludeMetadata = myenv.EXCLUDE_METADATA || '';
@@ -188,7 +188,7 @@ module.exports = {
 
                 function listMetadataBatch(qr){
                     return function(cback){
-                        if(!MUTE) console.log('SF LIST DESCRIBE METADATA: '+JSON.stringify(qr));
+                        //if(!MUTE) console.log('SF LIST DESCRIBE METADATA: '+JSON.stringify(qr));
                         status.sfConnection.metadata.list(qr, myenv.SF_API_VERSION+'.0', function(err, fileProperties){
                             if(!err && fileProperties){
                                 for(var ft = 0; ft < fileProperties.length; ft++){
@@ -410,7 +410,7 @@ module.exports = {
             if(err){
                 details = err.details + (details==null ? '' : ' '+details);
                 console.log("Error occurred : ", err.error, details);
-                updateWorkInfo(status.hcPool, err.error,details);
+                updateWorkInfo(status.hcPool, err.error, details);
             } else {
                 console.log('Success');
                 details = 'Success';

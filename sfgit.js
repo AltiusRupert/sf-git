@@ -258,7 +258,7 @@ module.exports = {
                 if(!MUTE) console.log('SF RETRIEVE ZIP - next is pipe');
                 stream.pipe(fs.createWriteStream(status.tempPath+status.zipPath+status.zipFile));
                 if(!MUTE) console.log('SF RETRIEVE ZIP - done');
-                return callback(null);
+                //return callback(null);
             },
             
             //Clones original repo

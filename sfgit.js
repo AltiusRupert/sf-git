@@ -6,6 +6,8 @@ var jsforce = require('jsforce');
 var async   = require('async');
 var AdmZip  = require('adm-zip');
 
+var exec    = require('flex-exec');
+
 var pg      = require('pg');
 
 var username = process.argv[2];     // Which SF org username do we want to work with ?
@@ -114,6 +116,21 @@ module.exports = {
         
         //asyncs jobs called sequentially (all the tasks to be done)
         async.series({
+            
+            /*
+            doOne : function(callback) {
+                exec('cat foo | grep bar', function(err, out, code) {
+                  if (err instanceof Error)
+                    throw err;
+                  process.stderr.write(err);
+                  process.stdout.write(out);
+                  process.exit(code);
+                });                
+                
+                return mainCallback && mainCallback(null, 'OK');
+            },
+            */
+            
             // connect to Heroku Connect SFOrgInfo DB
             hcPoolConnect : function(callback){
                 if(!MUTE) console.log('HC CONNECT');
@@ -394,9 +411,9 @@ module.exports = {
         },
                      
         function(err, results){
-            //deletes all temp files
-            deleteFolderRecursive(status.tempPath+status.zipPath+'/');
-            deleteFolderRecursive(status.tempPath+status.repoPath+'/');
+            // deletes all temp files
+            //deleteFolderRecursive(status.tempPath+status.zipPath+'/');
+            //deleteFolderRecursive(status.tempPath+status.repoPath+'/');
 
             if(err 
                 && err.error.details

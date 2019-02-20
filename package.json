@@ -26,7 +26,7 @@
     "start-local" : "nf start -s"
   },
   "dependencies" : {
-    "gift": "0.7.*",
+    "gift": "0.10.*",
     "jsforce":"1.6.*",
     "async":"2.0.0-rc.6",
     "fstream":"1.0.*",

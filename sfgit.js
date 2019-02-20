@@ -153,7 +153,7 @@ module.exports = {
                         //polling timeout of the SF connection
                         status.sfConnection.metadata.pollTimeout = myenv.SF_METADATA_POLL_TIMEOUT || 600000;
 
-                        //console.log('### From HC : allenv : ', allenv);
+                        console.log('### From HC : allenv : ', allenv);
                         return callback(null);
                     });      
             },
@@ -242,8 +242,8 @@ module.exports = {
                 }
                 var stream = status.sfConnection.metadata.retrieve({ 
                     unpackaged: {
-                      types: _types,
-                      version: myenv.SF_API_VERSION,
+                        types: _types,
+                        version: myenv.SF_API_VERSION,
                     }
                 }).stream();
                 stream.on('end', function() {
@@ -251,11 +251,12 @@ module.exports = {
                     return callback(null);
                 });
                 stream.on('error', function(err){
-                    if(!MUTE) console.log('SF RETRIEVE ZIP - error');
+                    if(!MUTE) console.log('SF RETRIEVE ZIP - error ', err);
                     return callback((err)?createReturnObject(err, 'SF Retrieving metadata ZIP file failed'):null);
                 });
                 if(!MUTE) console.log('SF RETRIEVE ZIP - next is pipe');
                 stream.pipe(fs.createWriteStream(status.tempPath+status.zipPath+status.zipFile));
+                if(!MUTE) console.log('SF RETRIEVE ZIP - done');
                 return callback(null);
             },
             
@@ -275,13 +276,13 @@ module.exports = {
             // https://www.nodegit.org/guides/cloning/
             
         gitClone : function(callback){
-                if(!MUTE) console.log('GIT CLONE');
                 myenv = allenv[status.selectedUsername];
                 var folderPath = status.tempPath+status.repoPath+status.zipFile;
                 var url = "https://"+myenv.REPO_USER_NAME+":"+myenv.REPO_PASSWORD+"@"+myenv.REPO_URL;
                 var branch = myenv.REPO_BRANCH || "master";
             
-                git.clone(url, folderPath, 0, branch,
+                if(!MUTE) console.log('GIT CLONE '+url+' '+folderPath+' '+branch);
+                git.clone(url, folderPath, 1, branch,
                 function(err, _repo){
                     status.gitRepo = _repo;
                     //deletes all cloned files except the .git folder (the ZIP file will be the master)
@@ -310,19 +311,19 @@ module.exports = {
 
                 var readmeBody = myenv.REPO_README || "";
                 fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/README.md', readmeBody, function(err) {
-                    if(err){
+                    if(err) {
                         return callback(createReturnObject(err, 'README.md file creation failed'));
                     }
                     fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/.gitignore', gitIgnoreBody, function(err) {
-                        if(err){
+                        if(err) {
                             return callback(createReturnObject(err, '.gitignore file creation failed'));
                         }
-                        try{
+                        try {
                             var zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
                             zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
                             return callback(null);
-                        }catch(ex){
-                            return callback(createReturnObject(ex, 'Unzip failed'));
+                        } catch(ex) {
+                            return callback(createReturnObject(ex, 'Unzip failed : '+JSON.stringify(ex)));
                         }
                     }); 
                 });

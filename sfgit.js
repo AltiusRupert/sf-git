@@ -89,7 +89,7 @@ module.exports = {
             ,tempPath        : '/tmp/'
             ,zipPath         : "zips/"
             ,repoPath        : "repos/"
-            ,zipFile         : "_MyPackage"+Math.random()+".zip"
+            ,zipFile         : "_MyPackage"+Math.random()
             ,sfConnection    : (new jsforce.Connection())
             ,sfLoginResult   : null
             ,types           : {}
@@ -101,11 +101,11 @@ module.exports = {
             if(!fs.existsSync(status.tempPath)){
                 fs.mkdirSync(status.tempPath);
             }
-            if (!fs.existsSync(status.tempPath+status.zipPath)){
-                fs.mkdirSync(status.tempPath+status.zipPath);
+            if (!fs.existsSync(zipFolderPath)){
+                fs.mkdirSync(zipFolderPath);
             }
-            if (!fs.existsSync(status.tempPath+status.repoPath)){
-                fs.mkdirSync(status.tempPath+status.repoPath);
+            if (!fs.existsSync(repoFolderPath)){
+                fs.mkdirSync(repoFolderPath);
             }
         }catch(ex){
             return mainCallback && mainCallback(ex);
@@ -256,7 +256,7 @@ module.exports = {
                 });
                 
                 if(!MUTE) console.log('SF RETRIEVE ZIP - next is pipe');
-                stream.pipe(fs.createWriteStream(status.tempPath+status.zipPath+status.zipFile));
+                stream.pipe(fs.createWriteStream(zipFolderPath));
                 if(!MUTE) console.log('SF RETRIEVE ZIP - done');
                 return callback(null);
             },
@@ -278,15 +278,16 @@ module.exports = {
             
             gitClone : function(callback){
                 myenv = allenv[status.selectedUsername];
-                var folderPath = status.tempPath+status.repoPath+status.zipFile;
+                var repoFolderPath = status.tempPath+status.repoPath+status.zipFile;
+                var zipFolderPath  = status.tempPath+status.zipPath +status.zipFile;
                 var url = "https://"+myenv.REPO_USER_NAME+":"+myenv.REPO_PASSWORD+"@"+myenv.REPO_URL;
                 var branch = myenv.REPO_BRANCH || "master";
             
-                if(!MUTE) console.log('GIT CLONE '+url+' '+folderPath+' '+branch);
-                git.clone(url, folderPath, 1, branch, function(err, _repo){
+                if(!MUTE) console.log('GIT CLONE '+url+' '+repoFolderPath+' '+branch);
+                git.clone(url, repoFolderPath, 1, branch, function(err, _repo){
                     status.gitRepo = _repo;
                     //deletes all cloned files except the .git folder (the ZIP file will be the master)
-                    deleteFolderRecursive(folderPath, '.git', true);
+                    deleteFolderRecursive(repoFolderPath, '.git', true);
                     return callback((err)?createReturnObject(err, 'Git clone failed : '+JSON.stringify(err)):null);
                 });
             },
@@ -310,22 +311,22 @@ module.exports = {
                 }
 
                 var readmeBody = process.env.REPO_README || "";
-                fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/README.md', readmeBody, function(err) {
+                fs.writeFile(repoFolderPath+'/README.md', readmeBody, function(err) {
                     if(!MUTE) console.log('UNZIP FILE - ok1');
                     if(err) {
                         return callback(createReturnObject(err, 'README.md file creation failed'));
                     }
                     if(!MUTE) console.log('UNZIP FILE - ok2');
-                    fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/.gitignore', gitIgnoreBody, function(err) {
+                    fs.writeFile(repoFolderPath+'/.gitignore', gitIgnoreBody, function(err) {
                         if(!MUTE) console.log('UNZIP FILE - ok3');
                         if(err) {
                             return callback(createReturnObject(err, '.gitignore file creation failed'));
                         }
                         try {
-                            if(!MUTE) console.log('UNZIP FILE - ok4 : ', status.tempPath+status.zipPath+status.zipFile);
-                            var zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
+                            if(!MUTE) console.log('UNZIP FILE - ok4 : ', zipFolderPath);
+                            var zip = new AdmZip(zipFolderPath);
                             if(!MUTE) console.log('UNZIP FILE - ok5');
-                            zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
+                            zip.extractAllTo(repoFolderPath+'/', true);
                             if(!MUTE) console.log('UNZIP FILE - ok6');
                             return callback(null);
                         } catch(ex) {
@@ -380,8 +381,8 @@ module.exports = {
                      
         function(err, results){
             //deletes all temp files
-            deleteFolderRecursive(status.tempPath+status.zipPath+'/');
-            deleteFolderRecursive(status.tempPath+status.repoPath+'/');
+            deleteFolderRecursive(zipFolderPath+'/');
+            deleteFolderRecursive(repoFolderPath+'/');
 
             if(err 
                 && err.error.details

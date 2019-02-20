@@ -320,8 +320,9 @@ module.exports = {
                         }
                         try {
                             var zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
-                            if(!MUTE) console.log('UNZIP FILE : '+status.tempPath+status.repoPath+status.zipFile+'/');
+                            if(!MUTE) console.log('UNZIP FILE 1 : '+status.tempPath+status.repoPath+status.zipFile+'/');
                             zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
+                            if(!MUTE) console.log('UNZIP FILE 2 : '+status.tempPath+status.repoPath+status.zipFile+'/');
                             return callback(null);
                         } catch(ex) {
                             return callback(createReturnObject(ex, 'Unzip failed : '+JSON.stringify(ex)));

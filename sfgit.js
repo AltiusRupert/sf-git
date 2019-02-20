@@ -309,28 +309,24 @@ module.exports = {
                     }
                 }
 
-                var readmeBody = myenv.REPO_README || "";
+                var readmeBody = process.env.REPO_README || "";
                 fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/README.md', readmeBody, function(err) {
-                    if(err) {
+                    if(err){
                         return callback(createReturnObject(err, 'README.md file creation failed'));
                     }
                     fs.writeFile(status.tempPath+status.repoPath+status.zipFile+'/.gitignore', gitIgnoreBody, function(err) {
-                        if(err) {
+                        if(err){
                             return callback(createReturnObject(err, '.gitignore file creation failed'));
                         }
-                        try {
-                            if(!MUTE) console.log('UNZIP FILE 0 : '+status.tempPath+status.repoPath+status.zipFile);
+                        try{
                             var zip = new AdmZip(status.tempPath+status.zipPath+status.zipFile);
-                            if(!MUTE) console.log('UNZIP FILE 1 : '+status.tempPath+status.repoPath+status.zipFile);
                             zip.extractAllTo(status.tempPath+status.repoPath+status.zipFile+'/', true);
-                            if(!MUTE) console.log('UNZIP FILE 2 : '+status.tempPath+status.repoPath+status.zipFile+'/');
                             return callback(null);
-                        } catch(ex) {
+                        }catch(ex){
                             return callback(createReturnObject(ex, 'Unzip failed : '+JSON.stringify(ex)));
                         }
                     }); 
                 });
-                // Jamais atteint
             },
             
             //Git add new resources

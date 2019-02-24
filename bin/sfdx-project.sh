@@ -33,6 +33,10 @@ echo "repo_url__c = $5"
 echo "repo_branch__c = $6"
 
 
+env
+
+
+
 ###############################################################
 ## TRAITEMENT
 ## Boucle sur toustes les orgs Salesforce gérées par Opera

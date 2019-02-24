@@ -8,7 +8,7 @@ var jsforce = require('jsforce');
 var async   = require('async');
 var AdmZip  = require('adm-zip');
 
-var exec    = require('flex-exec');
+var exec    = require('exec');
 var pg      = require('pg');
 
 var username = process.argv[2];     // Which SF org username do we want to work with ?

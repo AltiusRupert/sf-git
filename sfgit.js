@@ -141,7 +141,7 @@ module.exports = {
             // connect to Heroku Connect SFOrgInfo DB
             doTheJob : function(callback) {
                 if(!MUTE) console.log('HC RUN');
-                exec(["ls", "-al", "/"], function(err, out, code) {
+                exec(["which", "sfdx"], function(err, out, code) {
                     if (err instanceof Error) {
                       throw err;
                     }
@@ -186,7 +186,7 @@ module.exports = {
                 updateWorkInfo(status.hcPool, "Success", "");
             }
 
-            return mainCallback && mainCallback(err.message, details);
+            return mainCallback && mainCallback(err, details);
         })
 
 

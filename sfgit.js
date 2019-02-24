@@ -141,7 +141,7 @@ module.exports = {
             // connect to Heroku Connect SFOrgInfo DB
             doTheJob : function(callback) {
                 if(!MUTE) console.log('HC RUN');
-                exec(["which", "sfdx"], function(err, out, code) {
+                exec("which sfdx", function(err, out, code) {
                     if (err instanceof Error) {
                       throw err;
                     }

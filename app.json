@@ -56,7 +56,7 @@
       "required": false,
       "value": ""
     }
-  }
+  },
   "buildpacks": [
     {
       "url": "https://github.com/heroku/salesforce-cli-buildpack"

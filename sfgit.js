@@ -102,6 +102,7 @@ module.exports = {
             hcPoolConnect : function(callback){
                 if(!MUTE) console.log('HC CONNECT');
                 status.hPool = (new pg.Pool({ connectionString: DATABASE_URL, ssl: true }));     // Heroku Connect db for sfOrgInfo
+                if(!MUTE) console.log(status.hcPool);
                 status.hcPool.connect()
                     .catch(err      => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
                     .then((result)  => { return callback(null);     });

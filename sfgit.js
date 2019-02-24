@@ -1,4 +1,6 @@
+/* eslint-disable no-undef */
 'use strict';
+
 var git     = require('gift');
 var fs      = require('fs');
 var fstream = require('fstream');
@@ -76,6 +78,114 @@ var deleteFolderRecursive = function(path, exclude, doNotDeleteRoot) {
 
 
 module.exports = {
+    doAll2 : function(mainCallback){        
+        // Environment information
+        var allenv = [];
+        var myenv = {};
+                        
+        //status object
+        var DATABASE_URL = "postgres://qrgegoiddbkngv:3a2115f67912945baa640bde32220b28f88f4bcb64a29d236e788cce2751ce2c@ec2-54-217-250-0.eu-west-1.compute.amazonaws.com:5432/d5qhvdi2aam7d9"
+        status = {
+            selectedUsername : username      // Which SF org username do we want to work with ?
+            ,REPO_COMMIT_MESSAGE : process.env.REPO_COMMIT_MESSAGE
+
+            ,hcPool          : null
+            ,sfConnection    : null
+            ,sfLoginResult   : null
+        };        
+        console.log('Working on org of selected username : ', status.selectedUsername);
+
+
+        async.series({
+                        
+            // connect to Heroku Connect SFOrgInfo DB
+            hcPoolConnect : function(callback){
+                if(!MUTE) console.log('HC CONNECT');
+                status.hPool = new pg.Pool({ connectionString: DATABASE_URL, ssl: true });     // Heroku Connect db for sfOrgInfo
+                status.hcPool.connect()
+                    .catch(err      => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
+                    .then((result)  => { return callback(null);     });
+            },
+
+            // connect to Heroku Connect SFOrgInfo DB
+            hcPoolQuery : function(callback) {
+                if(!MUTE) console.log('HC QUERY');
+                var query = "SELECT * FROM salesforce.SFOrgInfo__c WHERE sf_username__c='"+ status.selectedUsername +"'";
+                status.hcPool.query(query)
+                    .catch(err      => { return callback(createReturnObject(err, 'Failed to query SF OrgInfo HC database : query = '+query));  })
+                    .then((result)  => {
+                        var res = result.rows[0];
+
+                        myenv = {}
+                        myenv.SF_METADATA_POLL_TIMEOUT  = res.sf_metadata_poll_timeout__c;
+                            myenv.SF_LOGIN_URL              = res.sf_login_url__c;
+                            myenv.SF_USERNAME               = res.sf_username__c;
+                        myenv.SF_PASSWORD               = res.sf_password__c;
+                        myenv.SF_API_VERSION            = res.sf_api_version__c;
+                        myenv.EXCLUDE_METADATA          = res.exclude_metadata__c;
+                        myenv.GIT_IGNORE                = res.git_ignore__c;
+                            myenv.REPO_URL                  = res.repo_url__c;
+                            myenv.REPO_BRANCH               = res.repo_branch__c;
+                            myenv.REPO_USER_NAME            = res.repo_user_name__c;
+                            myenv.REPO_PASSWORD             = res.repo_password__c;
+                        myenv.REPO_USER_EMAIL           = res.repo_user_email__c;
+                        myenv.REPO_README               = res.repo_readme__c;
+                        //myenv.REPO_COMMIT_MESSAGE
+
+                        allenv[status.selectedUsername] = myenv;
+
+                        console.log('### From HC : allenv : ', allenv);
+                        return callback(null);
+                    });      
+            },
+
+            // connect to Heroku Connect SFOrgInfo DB
+            doTheJob : function(callback) {
+                if(!MUTE) console.log('HC QUERY');
+                exec(['sfdx-project.sh'
+                            ,myenv.SF_USERNAME
+                            ,myenv.SF_LOGIN_URL
+                            ,myenv.REPO_USER_NAME
+                            ,myenv.REPO_PASSWORD
+                            ,myenv.REPO_URL
+                            ,myenv.REPO_BRANCH
+                        ], function(err, out, code) {
+                    if (err instanceof Error) {
+                      throw err;
+                    }
+        
+                    process.stderr.write(err);
+                    process.stdout.write(out);
+                    process.exit(code);
+                });
+            },
+        },
+
+
+        function(err, results){
+            var details;
+
+            if(err){
+                details = err.details;
+                console.log("Error occurred : ", err.error, err.details);
+                updateWorkInfo(status.hcPool, err.error, err.details);
+            } else {
+                console.log("Success");
+                details = "Success";
+                updateWorkInfo(status.hcPool, "Success", "");
+            }
+
+            return mainCallback && mainCallback(err, details);
+        })
+
+
+    },
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////:
+
     doAll : function(mainCallback){        
         // Environment information
         var allenv = [];
@@ -116,21 +226,7 @@ module.exports = {
         
         //asyncs jobs called sequentially (all the tasks to be done)
         async.series({
-            
-            /*
-            doOne : function(callback) {
-                exec('cat foo | grep bar', function(err, out, code) {
-                  if (err instanceof Error)
-                    throw err;
-                  process.stderr.write(err);
-                  process.stdout.write(out);
-                  process.exit(code);
-                });                
-                
-                return mainCallback && mainCallback(null, 'OK');
-            },
-            */
-            
+                        
             // connect to Heroku Connect SFOrgInfo DB
             hcPoolConnect : function(callback){
                 if(!MUTE) console.log('HC CONNECT');

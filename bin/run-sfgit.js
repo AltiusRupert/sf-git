@@ -6,23 +6,10 @@
  * command
  */
 
-/*
  var sfgit = require('../sfgit');
-sfgit.doAll(function(err, details){
+sfgit.doAll2(function(err, details){
 	// Already traced in sfgit
 	//console.log(err, details);
 	
-        //console.log("END : ", err ? err.error.message : '', details);
+        console.log("END : ", err, details);
 });
-*/
-
-
-var exec = require('flex-exec');
-
-exec(['sfdx-project.sh'], function(err, out, code) {
-	if (err instanceof Error)
-	  throw err;
-	process.stderr.write(err);
-	process.stdout.write(out);
-	process.exit(code);
-      });

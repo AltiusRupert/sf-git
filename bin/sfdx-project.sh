@@ -3,18 +3,43 @@
 set -e
 set -u
 
+
+###############################################################
+## PARAMÈTRES
+
 # Connected App with JWT key
 export CLIENTID='3MVG99OxTyEMCQ3g0xwRHkTAQlCKRyZ2kDgSKs.AvOoUy1KVeJt86tpsbAFEODQwV10_nPtZxjc9IkVLruj0Z'
 
+# Dossier de travail
 export PROJDIR='/tmp/zipdir'
 rm -rf $PROJDIR
 mkdir -p $PROJDIR
 
 export USERNAME='barrow@altius-services.com'
 
+
+export sf_username__c=$1
+export sf_login_url__c=$2
+export repo_user_name__c=$3
+export repo_password__c=$4
+export repo_url__c=$5
+export repo_branch__c=$6
+
+echo "sf_username__c = $1"
+echo "sf_login_url__c = $2"
+echo "repo_user_name__c = $3"
+echo "repo_password__c = $4"
+echo "repo_url__c = $5"
+echo "repo_branch__c = $6"
+
+
+###############################################################
+## TRAITEMENT
+## Boucle sur toustes les orgs Salesforce gérées par Opera
+
 #heroku pg:psql  -c "SELECT * FROM salesforce.sforginfo__c  WHERE sf_username__c='$USERNAME'" -a rbw-deli
-heroku pg:psql  -c "SELECT sf_username__c, sf_password__c, sf_login_url__c, repo_url__c, repo_user_name__c, repo_password__c, repo_branch__c  FROM salesforce.sforginfo__c  WHERE sf_username__c='$USERNAME'" -a rbw-deli | grep -v "sf_username__c" | grep -v "+---" | sed 's/ //g' | while IFS="|" read -r sf_username__c sf_password__c sf_login_url__c repo_url__c repo_user_name__c repo_password__c repo_branch__c; do
-    
+##heroku pg:psql  -c "SELECT sf_username__c, sf_password__c, sf_login_url__c, repo_url__c, repo_user_name__c, repo_password__c, repo_branch__c  FROM salesforce.sforginfo__c  WHERE sf_username__c='$USERNAME'" -a rbw-deli | grep -v "sf_username__c" | grep -v "+---" | sed 's/ //g' | while IFS="|" read -r sf_username__c sf_password__c sf_login_url__c repo_url__c repo_user_name__c repo_password__c repo_branch__c; do
+
     # Default value of branch is 'master'
     repo_branch__c=${repo_branch__c:-master}
 
@@ -82,4 +107,8 @@ heroku pg:psql  -c "SELECT sf_username__c, sf_password__c, sf_login_url__c, repo
     echo 'git push "origin" '+$repo_branch__c
           git push "origin" $repo_branch__c
 
-done
+
+    # Ménage
+    rm -rf $PROJDIR
+
+#done

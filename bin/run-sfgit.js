@@ -6,7 +6,7 @@
  * command
  */
 
- var sfgit = require('../sfgit');
+var sfgit = require('../sfgit');
 sfgit.doAll2(function(err, details){
 	// Already traced in sfgit
 	//console.log(err, details);

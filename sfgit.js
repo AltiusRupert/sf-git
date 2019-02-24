@@ -26,6 +26,7 @@ function createReturnObject(err, msg){
     };
 }
 
+
 /*
  * Update Heroku Connect database : work status, message, last commit date
  */

@@ -1,6 +1,6 @@
 'use strict';
 
-var git     = require('gift');
+//var git     = require('gift');
 var fs      = require('fs');
 var fstream = require('fstream');
 var jsforce = require('jsforce');

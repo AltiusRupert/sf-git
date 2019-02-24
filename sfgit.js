@@ -9,7 +9,6 @@ var async   = require('async');
 var AdmZip  = require('adm-zip');
 
 var exec    = require('flex-exec');
-
 var pg      = require('pg');
 
 var username = process.argv[2];     // Which SF org username do we want to work with ?
@@ -101,7 +100,7 @@ module.exports = {
             // connect to Heroku Connect SFOrgInfo DB
             hcPoolConnect : function(callback){
                 if(!MUTE) console.log('HC CONNECT');
-                status.hPool = (new pg.Pool({ connectionString: DATABASE_URL, ssl: true }));     // Heroku Connect db for sfOrgInfo
+                status.hcPool = (new pg.Pool({ connectionString: DATABASE_URL, ssl: true }));     // Heroku Connect db for sfOrgInfo
                 if(!MUTE) console.log(status.hcPool);
                 status.hcPool.connect()
                     .catch(err      => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })

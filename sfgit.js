@@ -41,7 +41,7 @@ function updateWorkInfo(pool, status, message){
     query.push("WHERE sf_username__c = '" +username+ "'");
     
     var q = query.join(' ');
-    console.log('### updateWorkInfo : query = '+q);
+    //console.log('### updateWorkInfo : query = '+q);
     pool.query(q)
         .catch(err => { console.log('Failed to update SF OrgInfo HC database : query = '+q+' - err = ', err);  });
 }
@@ -141,7 +141,7 @@ module.exports = {
             // connect to Heroku Connect SFOrgInfo DB
             doTheJob : function(callback) {
                 if(!MUTE) console.log('HC RUN');
-                exec(["ls", "-al", "/*"], function(err, out, code) {
+                exec(["ls", "-al", "/"], function(err, out, code) {
                     if (err instanceof Error) {
                       throw err;
                     }
@@ -186,7 +186,7 @@ module.exports = {
                 updateWorkInfo(status.hcPool, "Success", "");
             }
 
-            return mainCallback && mainCallback(err, details);
+            return mainCallback && mainCallback(err.message, details);
         })
 
 

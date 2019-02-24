@@ -140,7 +140,7 @@ module.exports = {
 
             // connect to Heroku Connect SFOrgInfo DB
             doTheJob : function(callback) {
-                if(!MUTE) console.log('HC QUERY');
+                if(!MUTE) console.log('HC RUN');
                 exec(['sfdx-project.sh'
                             ,myenv.SF_USERNAME
                             ,myenv.SF_LOGIN_URL
@@ -184,7 +184,7 @@ module.exports = {
 
 
     ///////////////////////////////////////////////////////////////////////////////////////:
-
+    /*
     doAll : function(mainCallback){        
         // Environment information
         var allenv = [];
@@ -517,4 +517,5 @@ module.exports = {
         })
 
     },
+    */
 }

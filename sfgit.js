@@ -283,22 +283,7 @@ module.exports = {
                 
                 // le retour se fait dans 'stream.on()'
             },
-            
-            //Clones original repo
-            // NodeGit :
-            // https://www.nodegit.org/api/clone/#clone
-            // https://stackoverflow.com/questions/22054799/using-nodegit-cloneoptions-to-clone-a-branch
-            //    var Git = require('nodegit');
-            //    var clone = Git.Clone.clone;
-            //    var branch = 'development';
-            //    var cloneOptions = new Git.CloneOptions();    
-            //    cloneOptions.checkoutBranch = branch;  
-            //    clone(url, directory, cloneOptions)
-            //        .then(function(repository){
-            //            console.log(repository);
-            //        });
-            // https://www.nodegit.org/guides/cloning/
-            
+                        
             gitClone : function(callback){
                 myenv = allenv[status.selectedUsername];
                 var url = "https://"+myenv.REPO_USER_NAME+":"+myenv.REPO_PASSWORD+"@"+myenv.REPO_URL;

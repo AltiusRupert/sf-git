@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 'use strict';
 
 var git     = require('gift');

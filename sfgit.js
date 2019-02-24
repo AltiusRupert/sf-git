@@ -92,7 +92,7 @@ module.exports = {
             ,sfConnection    : null
             ,sfLoginResult   : null
         };        
-        console.log('Working on org of selected username : ', status.selectedUsername);
+        //console.log('Working on org of selected username : ', status.selectedUsername);
 
 
         async.series({
@@ -101,7 +101,6 @@ module.exports = {
             hcPoolConnect : function(callback){
                 if(!MUTE) console.log('HC CONNECT');
                 status.hcPool = (new pg.Pool({ connectionString: DATABASE_URL, ssl: true }));     // Heroku Connect db for sfOrgInfo
-                if(!MUTE) console.log(status.hcPool);
                 status.hcPool.connect()
                     .catch(err      => { return callback(createReturnObject(err, 'Failed to connect to SF OrgInfo HC database'));   })
                     .then((result)  => { return callback(null);     });
@@ -125,7 +124,7 @@ module.exports = {
                         myenv.EXCLUDE_METADATA          = res.exclude_metadata__c;
                         myenv.GIT_IGNORE                = res.git_ignore__c;
                             myenv.REPO_URL                  = res.repo_url__c;
-                            myenv.REPO_BRANCH               = res.repo_branch__c;
+                            myenv.REPO_BRANCH               = res.repo_branch__c || "master";
                             myenv.REPO_USER_NAME            = res.repo_user_name__c;
                             myenv.REPO_PASSWORD             = res.repo_password__c;
                         myenv.REPO_USER_EMAIL           = res.repo_user_email__c;
@@ -134,7 +133,7 @@ module.exports = {
 
                         allenv[status.selectedUsername] = myenv;
 
-                        console.log('### From HC : allenv : ', allenv);
+                        //console.log('### From HC : allenv : ', allenv);
                         return callback(null);
                     });      
             },

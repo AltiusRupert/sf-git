@@ -4,11 +4,6 @@
   "repository": "https://github.com/enreeco/sf-git",
   "logo": "https://avatars3.githubusercontent.com/u/2393696?v=3&s=460",
   "keywords": ["salesforce", "metadata", "git"],
-  "website": "https://enree.co/",
-  "buildpacks": [
-    {
-      "url": "https://github.com/heroku/salesforce-cli-buildpack"
-    }
-  ]
+  "website": "https://enree.co/"
 
 }

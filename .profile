@@ -4,6 +4,9 @@
 echo "Installing SFDX"
 npm install --global sfdx-cli
 
+echo "Installing SFDX plugin shane"
+sfdx plugins:install shane-sfdx-plugins
+
 echo "Installing JQ for JSON parsing ..."
 
 wget -O jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64

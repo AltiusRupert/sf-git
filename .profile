@@ -28,8 +28,6 @@ sfdx plugins --core
 echo "Creating local resources ..."
 mkdir /app/tmp
 
-echo "env and NODE_PATH ?"
-which sfdx
 
 
-echo "Completed!"
+echo "Completed .profile !"

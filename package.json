@@ -34,7 +34,7 @@
     "express": "4.13.*",
     "pg": "7.4.1",
     "exec": "1.0.*"
-  },
+  }, 
   "devDependencies": {
     "eslint": "^5.14.1",
     "foreman": "*"

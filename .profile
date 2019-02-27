@@ -23,9 +23,7 @@ echo "Creating local resources ..."
 mkdir /app/tmp
 
 echo "env and NODE_PATH ?"
-env
-echo $NODE_PATH
-ls -al /app /
+which sfdx
 
 
 echo "Completed!"

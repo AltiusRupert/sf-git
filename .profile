@@ -1,6 +1,9 @@
 ## From : https://github.com/wadewegner/deploy-to-sfdx/blob/master/.profile#L10
 
 
+echo "Installing SFDX"
+npm install --global sfdx-cli
+
 echo "Installing JQ for JSON parsing ..."
 
 wget -O jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64

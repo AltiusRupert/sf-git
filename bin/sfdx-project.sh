@@ -33,8 +33,6 @@ echo "repo_url__c = $5"
 echo "repo_branch__c = $6"
 
 
-env
-
 
 
 ###############################################################
@@ -60,8 +58,8 @@ env
     # On se connecte à Salesforce
     # sf_username__c
     # sf_login_url__c
-    echo "sfdx force:auth:jwt:grant -u $sf_username__c --instanceurl $sf_login_url__c -f ./config/opera.key -i $CLIENTID"
-          sfdx force:auth:jwt:grant -u $sf_username__c --instanceurl $sf_login_url__c -f ./config/opera.key -i $CLIENTID
+    echo "sfdx force:auth:jwt:grant -u $sf_username__c --instanceurl $sf_login_url__c -f ./.config/opera.key -i $CLIENTID"
+          sfdx force:auth:jwt:grant -u $sf_username__c --instanceurl $sf_login_url__c -f ./.config/opera.key -i $CLIENTID
 
 
 	###############################################################
@@ -94,7 +92,8 @@ env
     # Retrieve source code from org (MD API format)
     cd $PROJDIR/proj
     echo "sfdx shane:mdapi:pull --all --loglevel=info"
-          sfdx shane:mdapi:pull --all --loglevel=info
+	sfdx force:user:display
+	sfdx shane:mdapi:pull --all --loglevel=info
 
 
 	###############################################################

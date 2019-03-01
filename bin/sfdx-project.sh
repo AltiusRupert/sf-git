@@ -59,8 +59,8 @@ echo "repo_branch__c = $6"
     # On se connecte à Salesforce
     # sf_username__c
     # sf_login_url__c
-    echo "sfdx force:auth:jwt:grant -u $sf_username__c --instanceurl $sf_login_url__c -f ./.config/opera.key -i $CLIENTID"
-          sfdx force:auth:jwt:grant -u $sf_username__c --instanceurl $sf_login_url__c -f ./.config/opera.key -i $CLIENTID
+    echo "sfdx force:auth:jwt:grant -s -u $sf_username__c --instanceurl $sf_login_url__c -f ./.config/opera.key -i $CLIENTID"
+          sfdx force:auth:jwt:grant -s -u $sf_username__c --instanceurl $sf_login_url__c -f ./.config/opera.key -i $CLIENTID
 
 
 	###############################################################

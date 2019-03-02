@@ -4,7 +4,7 @@ set -e
 set -u
 set -x
 
-# Don't auto-update SFDX
+# Don't auto-update SFDX CLI and its plugins
 export SFDX_AUTOUPDATE_DISABLE=true
 
 

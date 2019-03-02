@@ -11,9 +11,6 @@ export SFDX_AUTOUPDATE_DISABLE=true
 ###############################################################
 ## PARAMÈTRES
 
-# Connected App with JWT key
-export CLIENTID='3MVG99OxTyEMCQ3g0xwRHkTAQlCKRyZ2kDgSKs.AvOoUy1KVeJt86tpsbAFEODQwV10_nPtZxjc9IkVLruj0Z'
-
 # Dossier de travail
 export PROJDIR='/tmp/zipdir'
 rm -rf $PROJDIR
@@ -62,8 +59,8 @@ echo "repo_branch__c = $6"
     # On se connecte à Salesforce
     # sf_username__c
     # sf_login_url__c
-    echo "sfdx force:auth:jwt:grant -s -u $sf_username__c --instanceurl $sf_login_url__c -f ./.config/opera.key -i $CLIENTID"
-          sfdx force:auth:jwt:grant -s -u $sf_username__c --instanceurl $sf_login_url__c -f ./.config/opera.key -i $CLIENTID
+    echo "sfdx force:auth:jwt:grant -s -u $sf_username__c --instanceurl $sf_login_url__c -f ./.config/opera.key -i $CLIENTID_OPERA"
+          sfdx force:auth:jwt:grant -s -u $sf_username__c --instanceurl $sf_login_url__c -f ./.config/opera.key -i $CLIENTID_OPERA
 
 
 	###############################################################

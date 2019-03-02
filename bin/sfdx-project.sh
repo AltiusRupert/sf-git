@@ -4,6 +4,9 @@ set -e
 set -u
 set -x
 
+# Don't auto-update SFDX
+export SFDX_AUTOUPDATE_DISABLE=true
+
 
 ###############################################################
 ## PARAMÈTRES

@@ -93,9 +93,9 @@ echo "repo_branch__c = $6"
 
     # Retrieve source code from org (MD API format)
     cd $PROJDIR/proj
-    echo "sfdx shane:mdapi:pull --all --loglevel=info --json"
+    echo "sfdx shane:mdapi:pull --all --loglevel=info"
 	#sfdx force:user:display
-	sfdx shane:mdapi:pull --all --loglevel=info --json
+	sfdx shane:mdapi:pull --all --loglevel=info
 
 
 	###############################################################
@@ -103,8 +103,10 @@ echo "repo_branch__c = $6"
 
     # Commit stuff
     cd $PROJDIR/proj/force-app/main/default
-    pwd
-    ls -al
+    # On crée un dossier src sous default, en récupérant les fichiers et dossiers cachés
+    cd ..; mv default src; mkdir default; mv src default/.; cd default
+    
+    # On committe le dossier ./src
     echo "git add -A"
           git add -A
     echo 'git commit -m "Message de commit"'

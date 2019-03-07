@@ -105,7 +105,8 @@ echo "repo_branch__c = $6"
     cd $PROJDIR/proj/force-app/main/default
     # On crée un dossier src sous default, en récupérant les fichiers et dossiers cachés
     cd ..; mv default src; mkdir default; mv src default/.; cd default
-    
+    mkdir ../src; mv * ../src/.; mv ../src ./.
+	
     # On committe le dossier ./src
     echo "git add -A"
           git add -A
@@ -116,6 +117,7 @@ echo "repo_branch__c = $6"
 
 
     # Ménage
-    rm -rf $PROJDIR
+    echo "rm -rf $PROJDIR"
+    #rm -rf $PROJDIR
 
 #done

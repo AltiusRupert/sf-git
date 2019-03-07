@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#set -e
-#set -u
-#set -x
+set -e
+set -u
+set -x
 
 # Don't auto-update SFDX CLI and its plugins
 export SFDX_AUTOUPDATE_DISABLE=true

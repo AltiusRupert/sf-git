@@ -119,6 +119,6 @@ heroku pg:psql  -c "SELECT sf_username__c, sf_password__c, sf_login_url__c, repo
 
     # Ménage
     echo "rm -rf $PROJDIR"
-    #rm -rf $PROJDIR
+    rm -rf $PROJDIR
 
-#done
+done

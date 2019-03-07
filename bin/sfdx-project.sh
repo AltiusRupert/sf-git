@@ -17,7 +17,7 @@ export PROJDIR='/tmp/zipdir'
 rm -rf $PROJDIR
 mkdir -p $PROJDIR
 
-#export USERNAME='barrow@altius-services.com'
+export USERNAME='barrow.altius@spit.com.validpc'
 
 
 export sf_username__c=$1
@@ -42,7 +42,7 @@ echo "repo_branch__c = $6"
 ## Boucle sur toustes les orgs Salesforce gérées par Opera
 
 #heroku pg:psql  -c "SELECT * FROM salesforce.sforginfo__c  WHERE sf_username__c='$USERNAME'" -a $HEROKU_APP
-heroku pg:psql  -c "SELECT sf_username__c, sf_password__c, sf_login_url__c, repo_url__c, repo_user_name__c, repo_password__c, repo_branch__c  FROM salesforce.sforginfo__c  -a $HEROKU_APP | grep -v "sf_username__c" | grep -v "+---" | sed 's/ //g' | while IFS="|" read -r sf_username__c sf_password__c sf_login_url__c repo_url__c repo_user_name__c repo_password__c repo_branch__c; do
+heroku pg:psql  -c "SELECT sf_username__c, sf_password__c, sf_login_url__c, repo_url__c, repo_user_name__c, repo_password__c, repo_branch__c  FROM salesforce.sforginfo__c WHERE sf_username__c='$USERNAME'"  -a $HEROKU_APP | grep -v "sf_username__c" | grep -v "+---" | sed 's/ //g' | while IFS="|" read -r sf_username__c sf_password__c sf_login_url__c repo_url__c repo_user_name__c repo_password__c repo_branch__c; do
 
     # Default value of branch is 'master'
     repo_branch__c=${repo_branch__c:-master}

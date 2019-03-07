@@ -20,19 +20,19 @@ mkdir -p $PROJDIR
 export USERNAME='barrow.altius@spit.com.validpc'
 
 
-export sf_username__c=$1
-export sf_login_url__c=$2
-export repo_user_name__c=$3
-export repo_password__c=$4
-export repo_url__c=$5
-export repo_branch__c=$6
+#export sf_username__c=$1
+#export sf_login_url__c=$2
+#export repo_user_name__c=$3
+#export repo_password__c=$4
+#export repo_url__c=$5
+#export repo_branch__c=$6
 
-echo "sf_username__c = $1"
-echo "sf_login_url__c = $2"
-echo "repo_user_name__c = $3"
-echo "repo_password__c = $4"
-echo "repo_url__c = $5"
-echo "repo_branch__c = $6"
+#echo "sf_username__c = $1"
+#echo "sf_login_url__c = $2"
+#echo "repo_user_name__c = $3"
+#echo "repo_password__c = $4"
+#echo "repo_url__c = $5"
+#echo "repo_branch__c = $6"
 
 
 

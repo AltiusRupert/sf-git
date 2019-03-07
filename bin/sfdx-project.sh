@@ -1,7 +1,7 @@
 #!/bin/bash
 
-set -e
-set -u
+#set -e
+#set -u
 #set -x
 
 # Don't auto-update SFDX CLI and its plugins
@@ -92,9 +92,9 @@ echo "repo_branch__c = $6"
 
     # Retrieve source code from org (MD API format)
     cd $PROJDIR/proj
-    echo "sfdx shane:mdapi:pull --all --loglevel=info"
+    echo "sfdx shane:mdapi:pull --all --loglevel=info --json"
 	#sfdx force:user:display
-	sfdx shane:mdapi:pull --all --loglevel=info
+	sfdx shane:mdapi:pull --all --loglevel=info --json
 
 
 	###############################################################

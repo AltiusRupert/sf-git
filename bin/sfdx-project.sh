@@ -6,6 +6,7 @@
 
 # Don't auto-update SFDX CLI and its plugins
 export SFDX_AUTOUPDATE_DISABLE=true
+export HEROKU_APP="staging-sfgit"
 
 
 ###############################################################
@@ -16,7 +17,7 @@ export PROJDIR='/tmp/zipdir'
 rm -rf $PROJDIR
 mkdir -p $PROJDIR
 
-export USERNAME='barrow@altius-services.com'
+#export USERNAME='barrow@altius-services.com'
 
 
 export sf_username__c=$1
@@ -40,8 +41,8 @@ echo "repo_branch__c = $6"
 ## TRAITEMENT
 ## Boucle sur toustes les orgs Salesforce gérées par Opera
 
-#heroku pg:psql  -c "SELECT * FROM salesforce.sforginfo__c  WHERE sf_username__c='$USERNAME'" -a rbw-deli
-##heroku pg:psql  -c "SELECT sf_username__c, sf_password__c, sf_login_url__c, repo_url__c, repo_user_name__c, repo_password__c, repo_branch__c  FROM salesforce.sforginfo__c  WHERE sf_username__c='$USERNAME'" -a rbw-deli | grep -v "sf_username__c" | grep -v "+---" | sed 's/ //g' | while IFS="|" read -r sf_username__c sf_password__c sf_login_url__c repo_url__c repo_user_name__c repo_password__c repo_branch__c; do
+#heroku pg:psql  -c "SELECT * FROM salesforce.sforginfo__c  WHERE sf_username__c='$USERNAME'" -a $HEROKU_APP
+heroku pg:psql  -c "SELECT sf_username__c, sf_password__c, sf_login_url__c, repo_url__c, repo_user_name__c, repo_password__c, repo_branch__c  FROM salesforce.sforginfo__c  -a $HEROKU_APP | grep -v "sf_username__c" | grep -v "+---" | sed 's/ //g' | while IFS="|" read -r sf_username__c sf_password__c sf_login_url__c repo_url__c repo_user_name__c repo_password__c repo_branch__c; do
 
     # Default value of branch is 'master'
     repo_branch__c=${repo_branch__c:-master}
@@ -105,7 +106,6 @@ echo "repo_branch__c = $6"
     cd $PROJDIR/proj/force-app/main/default
     # On crée un dossier src sous default, en récupérant les fichiers et dossiers cachés
     cd ..; mv default src; mkdir default; mv src default/.; cd default
-    mkdir ../src; mv * ../src/.; mv ../src ./.
 	
     # On committe le dossier ./src
     echo "git add -A"

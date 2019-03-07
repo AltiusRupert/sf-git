@@ -110,6 +110,7 @@ echo "repo_branch__c = $6"
     # On committe le dossier ./src
     echo "git add -A"
           git add -A
+	  cd src; git rm *; cd ..
     echo 'git commit -m "Message de commit"'
           git commit -m "Message de commit"
     echo 'git push "origin" '+$repo_branch__c
